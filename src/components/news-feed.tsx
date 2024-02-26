@@ -8,7 +8,7 @@ const NewsFeed = ({ items }: { items: Item[] }) => {
         {items.map((item, i) => {
           return (
             <>
-              <tr key={item.id}>
+              <tr key={`${item.id}-title-row`}>
                 <td
                   className="text-sm pt-1"
                   style={{ textAlign: "right", verticalAlign: "top" }}
@@ -34,7 +34,7 @@ const NewsFeed = ({ items }: { items: Item[] }) => {
                   <span className="text-2xs text-content-gray">{` (${toHostname(item.url)})`}</span>
                 </td>
               </tr>
-              <tr className="h-1">
+              <tr className="h-1" key={`${item.id}-detail-row`}>
                 <td colSpan={2} />
                 <td className="text-3xs">
                   <span className="text-content-gray">
