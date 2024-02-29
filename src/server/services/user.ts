@@ -1,19 +1,26 @@
-import { User, UserSession } from "../../models/user";
-import { InMemoryDatabase } from "../database";
 import { hashPassword, verifyPassword } from "../../lib/auth";
+import { PrismaClient } from "@prisma/client";
+import { generateSessionToken } from "../../lib/auth";
 
 export class UserService {
-  db: InMemoryDatabase;
+  db: PrismaClient;
 
-  constructor(db: InMemoryDatabase) {
+  constructor(db: PrismaClient) {
     this.db = db;
   }
 
-  getUser(id: string): User | undefined {
-    return this.db.getUser(id);
+  async getUser(id: string) {
+    // return this.db.getUser(id);
+    const user = await this.db.user.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    return user;
   }
 
-  resisterUser(id: string, password: string): User {
+  async resisterUser(id: string, password: string) {
     // validation
     if (id.length < 3 || id.length > 64) {
       throw new Error("user id length is invalid");
@@ -23,39 +30,58 @@ export class UserService {
       throw new Error("user password length is invalid");
     }
 
-    if (this.db.getUser(id)) {
+    const user = await this.db.user.findUnique({
+      where: {
+        id: id,
+      },
+    });
+    if (user) {
       throw new Error("user id is already taken");
     }
 
     const { salt, hashedPassword } = hashPassword(password);
 
-    const user = new User({
-      id: id,
-      passwordSalt: salt,
-      hashedPassword: hashedPassword,
+    const newUser = await this.db.user.create({
+      data: {
+        id: id,
+        passwordSalt: salt,
+        hashedPassword: hashedPassword,
+      },
     });
 
-    this.db.createUser(user);
-
-    console.log("insert user:", user);
-
-    return user;
+    return newUser;
   }
 
-  createSession(userId: string): UserSession {
-    if (!this.db.getUser(userId)) {
+  async createSession(userId: string) {
+    const user = await this.db.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+    if (!user) {
       throw new Error("user does not exist");
     }
 
-    const session = new UserSession({ userId: userId });
-    this.db.createUserSession(session);
+    const d = new Date();
+    d.setFullYear(d.getFullYear() + 1);
+
+    const session = await this.db.userSession.create({
+      data: {
+        userId: userId,
+        expired: d,
+        token: generateSessionToken(),
+      },
+    });
 
     return session;
   }
 
-  login(id: string, password: string): UserSession {
-    const user = this.getUser(id);
-
+  async login(id: string, password: string) {
+    const user = await this.db.user.findUnique({
+      where: {
+        id: id,
+      },
+    });
     if (!user) {
       throw new Error("user does not exist");
     }

@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "User" ALTER COLUMN "about" SET DEFAULT '',
+ALTER COLUMN "karma" SET DEFAULT 1;

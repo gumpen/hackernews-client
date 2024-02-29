@@ -1,9 +1,8 @@
-import { InMemoryDatabase } from "./database";
 import { UserService } from "./services/user";
+import prisma from "./db";
 
 console.log("service.ts");
-const db = new InMemoryDatabase();
-export const userService = new UserService(db);
+export const userService = new UserService(prisma);
 
 // export const initServices = () => {
 //   console.log("initServices");

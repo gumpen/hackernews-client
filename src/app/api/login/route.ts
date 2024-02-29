@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
   const { username, password } = identifier;
 
   try {
-    const session = userService.login(username, password);
+    const session = await userService.login(username, password);
 
     const res = NextResponse.json({}, { status: 200 });
     res.cookies.set("user", `${session.userId}:${session.token}`, {
