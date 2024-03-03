@@ -2,11 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { userService } from "@/server/service";
 import { User } from "@prisma/client";
 
-interface Identifier {
-  username: string;
-  password: string;
-}
-
 type ResponseUser = Omit<
   User,
   "passwordSalt" | "hashedPassword" | "email" | "created"
@@ -15,20 +10,33 @@ type ResponseUser = Omit<
 };
 
 export async function POST(req: NextRequest) {
-  const identifier = (await req.json()) as Identifier;
-  const { username, password } = identifier;
+  const data = await req.formData();
+  const username = data.get("username");
+  const password = data.get("password");
+  if (!username || !password) {
+    return NextResponse.json({}, { status: 400 });
+  }
 
   try {
-    const newUser = await userService.resisterUser(username, password);
+    const { user, session } = await userService.resisterUser(
+      username.toString(),
+      password.toString()
+    );
     const resUser: ResponseUser = {
-      id: newUser.id,
-      about: newUser.about,
-      created: newUser.created.getTime(),
-      karma: newUser.karma,
-      submitted: newUser.submitted,
+      id: user.id,
+      about: user.about,
+      created: user.created.getTime(),
+      karma: user.karma,
+      submitted: user.submitted,
     };
-    console.log(resUser);
-    const res = NextResponse.json({ user: resUser }, { status: 200 });
+
+    const res = NextResponse.redirect("http://localhost:3000/");
+    if (session) {
+      res.cookies.set("user", `${session.userId}:${session.token}`, {
+        expires: session.expired,
+        maxAge: 31536000,
+      });
+    }
     return res;
   } catch (err: any) {
     console.error(err);

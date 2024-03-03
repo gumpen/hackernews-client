@@ -1,4 +1,26 @@
-const Header = () => {
+"use client";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+export interface Props {
+  user: { id: string; karma: number } | undefined;
+}
+
+const Header = (props: Props) => {
+  const { user } = props;
+
+  const router = useRouter();
+
+  const onClickLogout = async () => {
+    await fetch("/api/logout", {
+      method: "POST",
+    });
+
+    document.cookie = "user=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+    // router.push("/");
+  };
+
   return (
     <table
       className="p-0.5 w-full border-separate"
@@ -37,11 +59,19 @@ const Header = () => {
             </span>
           </td>
           <td className="text-right pr-1">
-            <span className="text-sm">
-              <a>gumpen (1) </a>
-              {" | "}
-              <a>logout</a>
-            </span>
+            {user ? (
+              <span className="text-sm">
+                <Link href={`/user?id=${user.id}`}>{user.id}</Link>
+                {` (${user.karma}) | `}
+                <a href="/" onClick={onClickLogout}>
+                  logout
+                </a>
+              </span>
+            ) : (
+              <span className="text-sm">
+                <Link href={`/login`}>login</Link>
+              </span>
+            )}
           </td>
         </tr>
       </tbody>

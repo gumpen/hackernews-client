@@ -10,8 +10,6 @@ const port = 3000;
 const app = next({ dev, hostname, port });
 const handle = app.getRequestHandler();
 
-console.log("server.ts");
-
 app.prepare().then(() => {
   createServer(async (req: any, res: any) => {
     try {

@@ -1,6 +1,9 @@
-import { hashPassword, verifyPassword } from "../../lib/auth";
+import {
+  hashPassword,
+  verifyPassword,
+  generateSessionToken,
+} from "../../lib/auth";
 import { PrismaClient } from "@prisma/client";
-import { generateSessionToken } from "../../lib/auth";
 
 export class UserService {
   db: PrismaClient;
@@ -41,15 +44,27 @@ export class UserService {
 
     const { salt, hashedPassword } = hashPassword(password);
 
+    const d = new Date();
+    d.setFullYear(d.getFullYear() + 1);
+
     const newUser = await this.db.user.create({
       data: {
         id: id,
         passwordSalt: salt,
         hashedPassword: hashedPassword,
+        sessions: {
+          create: {
+            expired: d,
+            token: generateSessionToken(),
+          },
+        },
+      },
+      include: {
+        sessions: true,
       },
     });
 
-    return newUser;
+    return { user: newUser, session: newUser.sessions[0] };
   }
 
   async createSession(userId: string) {
@@ -91,5 +106,45 @@ export class UserService {
     }
 
     return this.createSession(user.id);
+  }
+
+  async getUserByToken(id: string, token: string) {
+    const session = await this.db.userSession.findFirst({
+      where: {
+        AND: [
+          {
+            token: token,
+          },
+          {
+            expired: {
+              gt: new Date(),
+            },
+          },
+        ],
+      },
+      include: {
+        user: true,
+      },
+    });
+    if (!session) {
+      return undefined;
+    }
+
+    return session.user;
+  }
+
+  async logout(id: string, token: string) {
+    const user = await this.getUserByToken(id, token);
+    if (!user) {
+      return;
+    }
+
+    const sessions = await this.db.userSession.deleteMany({
+      where: {
+        userId: user.id,
+      },
+    });
+
+    return sessions.count;
   }
 }
