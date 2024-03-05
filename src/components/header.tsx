@@ -31,16 +31,20 @@ const Header = (props: Props) => {
       <tbody>
         <tr key={"header-row"}>
           <td className="w-6 pr-1">
-            <img
-              className="border border-white border-solid block"
-              src="y18.svg"
-              width={20}
-              height={20}
-            ></img>
+            <Link href={"/"}>
+              <img
+                className="border border-white border-solid block"
+                src="y18.svg"
+                width={20}
+                height={20}
+              ></img>
+            </Link>
           </td>
           <td>
             <span className="text-sm">
-              <b className="mr-2 ml-px">Hacker News</b>
+              <Link href={"/news"}>
+                <b className="mr-2 ml-px">Hacker News</b>
+              </Link>
               <a>new</a>
               {" | "}
               <a>threads</a>
