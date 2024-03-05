@@ -1,4 +1,4 @@
-import { Item } from "@/app/page";
+import { Item } from "@/app/(app)/page";
 import { convertNumberToTimeAgo, toHostname } from "@/lib/util";
 
 const NewsFeed = ({ items }: { items: Item[] }) => {

@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { userService } from "../server/service";
 
 export const getCurrentUser = async () => {
+  console.log("getCurrentUser");
   const cookieStore = cookies();
   const userString = cookieStore.get("user");
   if (!userString) {
@@ -15,5 +16,10 @@ export const getCurrentUser = async () => {
   }
 
   const user = await userService.getUserByToken(username, token);
+  return user;
+};
+
+export const getUserById = async (id: string) => {
+  const user = await userService.getUser(id);
   return user;
 };

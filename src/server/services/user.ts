@@ -3,7 +3,11 @@ import {
   verifyPassword,
   generateSessionToken,
 } from "../../lib/auth";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, User } from "@prisma/client";
+
+export type UpdateUserProps = Partial<
+  Omit<User, "id" | "created" | "passwordSalt" | "hashedPassword">
+>;
 
 export class UserService {
   db: PrismaClient;
@@ -146,5 +150,34 @@ export class UserService {
     });
 
     return sessions.count;
+  }
+
+  async updateUser(id: string, props: UpdateUserProps) {
+    const user = await this.db.user.findUnique({
+      where: {
+        id: id,
+      },
+    });
+    if (!user) {
+      throw new Error("user does not exist");
+    }
+
+    const data = Object.entries(props).reduce((acc, [key, value]) => {
+      if (value !== null) {
+        (acc as any)[key] = value;
+      }
+      return acc;
+    }, {} as UpdateUserProps);
+
+    console.log("updateUser", data);
+
+    const updatedUser = await this.db.user.update({
+      where: {
+        id: user.id,
+      },
+      data: data,
+    });
+
+    return updatedUser;
   }
 }

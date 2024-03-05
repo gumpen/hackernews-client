@@ -4,6 +4,7 @@ export const convertNumberToTimeAgo = (n: number): string => {
 
   if (d < 0) {
     console.error(`convertNumberToTimeAgo: n is invalid value`);
+    return "";
   }
 
   const seconds = Math.floor(d / 1000);
@@ -42,6 +43,14 @@ export const convertNumberToTimeAgo = (n: number): string => {
   }
 };
 
+export const getDateComponents = (d: Date) => {
+  const year = d.getFullYear();
+  const month = d.getMonth();
+  const day = d.getDate();
+
+  return { year, month, day };
+};
+
 export const toHostname = (urlString: string): string => {
   try {
     const url = new URL(urlString);
@@ -49,4 +58,12 @@ export const toHostname = (urlString: string): string => {
   } catch {
     return urlString;
   }
+};
+
+export const splitToken = (tokenStr: string) => {
+  const split = tokenStr.split(":");
+  return {
+    username: split[0],
+    token: split[1],
+  };
 };

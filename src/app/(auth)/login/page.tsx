@@ -2,14 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { validateUserInput } from "@/lib/validation";
-
-interface User {
-  id: string;
-  about: string | null;
-  created: Date;
-  karma: number;
-  submitted: number[];
-}
+import { User } from "@/lib/definitions";
 
 export default function Login() {
   const [currentUser, setCurrentUser] = useState<User>();
