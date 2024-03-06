@@ -23,6 +23,7 @@ model User {
   passwordSalt   String
   hashedPassword String
   sessions       UserSession[]
+  items          Item[]
 }
 
 model UserSession {
@@ -32,3 +33,25 @@ model UserSession {
   expired DateTime @default(now())
   token   String
 }
+
+model Item {
+  id       Int      @id @default(autoincrement())
+  deleted  Boolean  @default(false)
+  type     String
+  userId   String
+  user     User     @relation(fields: [userId], references: [id])
+  created  DateTime @default(now())
+  text     String?  @db.Text // 65535bytes
+  dead     Boolean  @default(false)
+  parentId Int?
+  parent   Item?    @relation("ParentKids", fields: [parentId], references: [id])
+  kids     Item[]   @relation("ParentKids")
+  url      String?
+  title    String?
+}
+
+// enum ItemType {
+//   STORY
+//   COMMENT
+//   JOB
+// }

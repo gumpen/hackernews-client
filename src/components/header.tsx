@@ -2,16 +2,26 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import HeaderNav from "./header-nav";
 
 export interface Props {
   user: { id: string; karma: number } | undefined;
+  title?: string;
+  isNavVisible?: boolean;
+  isAuthVisible?: boolean;
 }
 
-const Header = (props: Props) => {
-  const { user } = props;
+const Header = ({
+  user,
+  title = "Hacker News",
+  isNavVisible = true,
+  isAuthVisible = true,
+}: Props) => {
+  // const { user } = props;
 
-  const router = useRouter();
+  // const router = useRouter();
 
+  // TODO: to server action
   const onClickLogout = async () => {
     await fetch("/api/logout", {
       method: "POST",
@@ -41,42 +51,27 @@ const Header = (props: Props) => {
             </Link>
           </td>
           <td>
-            <span className="text-sm">
-              <Link href={"/news"}>
-                <b className="mr-2 ml-px">Hacker News</b>
-              </Link>
-              <a>new</a>
-              {" | "}
-              <a>threads</a>
-              {" | "}
-              <a>past</a>
-              {" | "}
-              <a>comments</a>
-              {" | "}
-              <a>ask</a>
-              {" | "}
-              <a>show</a>
-              {" | "}
-              <a>jobs</a>
-              {" | "}
-              <a>submit</a>
-            </span>
+            <HeaderNav title={title} isNavVisible={isNavVisible}></HeaderNav>
           </td>
-          <td className="text-right pr-1">
-            {user ? (
-              <span className="text-sm">
-                <Link href={`/user?id=${user.id}`}>{user.id}</Link>
-                {` (${user.karma}) | `}
-                <a href="/" onClick={onClickLogout}>
-                  logout
-                </a>
-              </span>
-            ) : (
-              <span className="text-sm">
-                <Link href={`/login`}>login</Link>
-              </span>
-            )}
-          </td>
+          {isAuthVisible ? (
+            <td className="text-right pr-1">
+              {user ? (
+                <span className="text-sm">
+                  <Link href={`/user?id=${user.id}`}>{user.id}</Link>
+                  {` (${user.karma}) | `}
+                  <a href="/" onClick={onClickLogout}>
+                    logout
+                  </a>
+                </span>
+              ) : (
+                <span className="text-sm">
+                  <Link href={`/login`}>login</Link>
+                </span>
+              )}
+            </td>
+          ) : (
+            <></>
+          )}
         </tr>
       </tbody>
     </table>

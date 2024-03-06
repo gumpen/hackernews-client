@@ -1,7 +1,7 @@
 import Header from "@/components/header";
 import { getCurrentUser } from "@/lib/api";
 
-export default async function UserLayout({
+export default async function SubmitLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -13,7 +13,12 @@ export default async function UserLayout({
       <tbody>
         <tr className="bg-yc-orange" key={"header"}>
           <td>
-            <Header user={user} />
+            <Header
+              user={user}
+              title="Submit"
+              isNavVisible={false}
+              isAuthVisible={false}
+            />
           </td>
         </tr>
         <tr className="h-3" key={"space1"}></tr>

@@ -2,8 +2,10 @@
 
 import { User } from "@/lib/definitions";
 import { splitToken } from "@/lib/util";
-import { userService } from "@/server/service";
+import { userService, itemService } from "@/server/service";
 import { cookies } from "next/headers";
+import { Item } from "@prisma/client";
+import { redirect } from "next/navigation";
 
 export interface UpdateUserActionState {
   user?: User;
@@ -64,4 +66,67 @@ export async function updateUser(
       message: "failed to update",
     };
   }
+}
+
+export interface PostStoryActionState {
+  item?: Item;
+  success: boolean;
+  message?: string;
+}
+
+export async function postStory(
+  state: PostStoryActionState,
+  form: FormData
+): Promise<PostStoryActionState> {
+  const cookieStore = cookies();
+  const userCookie = cookieStore.get("user");
+  if (!userCookie) {
+    return {
+      success: false,
+      message: "invalid token",
+    };
+  }
+
+  const { username, token } = splitToken(userCookie.value);
+  if (!username || !token) {
+    return {
+      success: false,
+      message: "invalid token",
+    };
+  }
+  const currentUser = await userService.getUserByToken(username, token);
+  if (!currentUser) {
+    return {
+      success: false,
+      message: "unauthorized user",
+    };
+  }
+
+  const title = form.get("title");
+  const url = form.get("url");
+  const text = form.get("text");
+
+  // TODO: もっと詳細なバリデーション
+  // validation
+  if (!title || !title.toString()) {
+    return {
+      success: false,
+      message: "invalid params",
+    };
+  }
+
+  const payload = {
+    userId: currentUser.id,
+    title: title.toString(),
+    url: url?.toString() || null,
+    text: text?.toString() || null,
+  };
+
+  const item = await itemService.createStory(payload);
+
+  redirect(`/item?id=${item.id}`);
+  // return {
+  //   item: item,
+  //   success: true,
+  // };
 }
