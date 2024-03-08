@@ -1,0 +1,16 @@
+@keyframes border-animation {
+  0% {
+    border-color: transparent;
+  }
+  50% {
+    border-color: #828282;
+  }
+  100% {
+    border-color: transparent;
+  }
+}
+
+.animate {
+  animation: border-animation 3s ease-out forwards;
+  border: 1px solid transparent;
+}

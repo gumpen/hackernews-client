@@ -19,12 +19,25 @@ export default async function Item({
     return <div>no such item</div>;
   }
 
+  let focusCommentId: number | undefined = undefined;
+  //   const focusCommentId = searchParams["focus"];
+  try {
+    const focusSchema = z.coerce.number().min(1);
+    focusCommentId = focusSchema.parse(searchParams["focus"]);
+  } catch {}
+
+  // TODO: item.typeがcommentだった場合の追加
+
   return (
     <>
       <ItemDetail item={item}></ItemDetail>
       <br />
       <br />
-      <CommentTree item={item}></CommentTree>
+      {focusCommentId ? (
+        <CommentTree item={item} focus={focusCommentId}></CommentTree>
+      ) : (
+        <CommentTree item={item}></CommentTree>
+      )}
     </>
   );
 }

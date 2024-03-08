@@ -1,11 +1,40 @@
+"use client";
+
 import { Item } from "@prisma/client";
 import Link from "next/link";
 import { convertNumberToTimeAgo } from "@/lib/util";
+import styles from "./style.module.css";
+import classNames from "classnames";
+import { useEffect } from "react";
 
-export const CommentRow = ({ item, depth }: { item: Item; depth: number }) => {
+export const CommentRow = ({
+  item,
+  depth,
+  focus,
+}: {
+  item: Item;
+  depth: number;
+  focus?: number | undefined;
+}) => {
+  useEffect(() => {
+    if (focus) {
+      const element = document.getElementById(`comment-${focus}`);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  }, [focus]);
+
+  const rowClassName = (itemId: number, focus: number | undefined) => {
+    if (!focus || itemId !== focus) {
+      return "";
+    }
+    return classNames({ [styles.animate]: true });
+  };
+
   return (
-    <tr>
-      <td>
+    <tr id={`comment-${item.id}`}>
+      <td className={rowClassName(item.id, focus)}>
         <table className="border-separate">
           <tbody>
             <tr>

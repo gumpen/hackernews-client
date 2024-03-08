@@ -2,7 +2,7 @@
 
 import { Item } from "@prisma/client";
 import { toHostname, convertNumberToTimeAgo } from "@/lib/util";
-import { PostCommentyActionState, postComment } from "@/app/actions";
+import { PostCommentActionState, postComment } from "@/app/actions";
 import { useRef, FormEvent } from "react";
 import { useFormState } from "react-dom";
 import { ItemWithKids } from "@/lib/definitions";
@@ -15,11 +15,11 @@ export const ItemDetail = ({ item }: Props) => {
   const ref = useRef<HTMLFormElement>(null);
   //   const [formState, formDispatch] = useFormState(
   //     postComment,
-  //     {} as PostCommentyActionState
+  //     {} as PostCommentActionState
   //   );
 
   const handleFormSubmit = async (form: FormData) => {
-    const res = await postComment({} as PostCommentyActionState, form);
+    const res = await postComment({} as PostCommentActionState, form);
     if (res.success) {
       if (ref.current) {
         ref.current.reset();

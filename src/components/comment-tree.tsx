@@ -4,45 +4,10 @@ import { CommentRow } from "./comment-row";
 
 interface Props {
   item: ItemWithDescendants;
+  focus?: number;
 }
 
-// interface Node {
-//   id: number;
-//   kids: Node[];
-// }
-
-export const CommentTree = ({ item }: Props) => {
-  //   const descendantsTree = (origin: ItemWithDescendants) => {
-  //     const allDecendants = origin.descendants;
-  //     if (!allDecendants) {
-  //       return [];
-  //     }
-
-  //     const buildTree = (tree: Node[], item: Item): boolean => {
-  //       for (const node of tree) {
-  //         if (item.parentId === node.id) {
-  //           node.kids.push({ id: item.id, kids: [] });
-  //           return true;
-  //         }
-  //         const found = buildTree(node.kids, item);
-  //         if (found) {
-  //           return true;
-  //         }
-  //       }
-  //       return false;
-  //     };
-
-  //     const tree: Node[] = [];
-  //     for (const d of allDecendants.sort((a, b) => a.id - b.id)) {
-  //       const found = buildTree(tree, d);
-  //       if (!found) {
-  //         tree.push({ id: d.id, kids: [] });
-  //       }
-  //     }
-
-  //     return tree;
-  //   };
-
+export const CommentTree = ({ item, focus }: Props) => {
   const buildDescendantsTree = (
     rootItem: ItemWithDescendants
   ): ItemWithKids[] => {
@@ -72,37 +37,13 @@ export const CommentTree = ({ item }: Props) => {
     );
   };
 
-  //   const buildCommentTreeComponents = (
-  //     tree: Node[],
-  //     items: Item[],
-  //     depth: number = 0
-  //   ): JSX.Element[] => {
-  //     return tree.reduce<JSX.Element[]>((components, node) => {
-  //       const item = items.find((i) => i.id === node.id);
-  //       if (!item) {
-  //         throw new Error("internal error");
-  //       }
-
-  //       const currentComponent = (
-  //         <CommentRow item={item} depth={depth} key={item.id} />
-  //       );
-
-  //       const childComponents =
-  //         node.kids.length > 0
-  //           ? buildCommentTreeComponents(node.kids, items, depth + 1)
-  //           : [];
-
-  //       return components.concat(currentComponent, childComponents);
-  //     }, []);
-  //   };
-
   const buildCommentTreeComponents = (
     items: ItemWithKids[],
     depth: number = 0
   ): JSX.Element[] => {
     return items.reduce<JSX.Element[]>((components, item) => {
       const currentComponent = (
-        <CommentRow item={item} depth={depth} key={item.id} />
+        <CommentRow item={item} depth={depth} key={item.id} focus={focus} />
       );
 
       const childComponents =
