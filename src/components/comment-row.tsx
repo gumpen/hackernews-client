@@ -5,17 +5,27 @@ import Link from "next/link";
 import { convertNumberToTimeAgo } from "@/lib/util";
 import styles from "./style.module.css";
 import classNames from "classnames";
-import { useEffect } from "react";
+import { useEffect, MouseEvent } from "react";
+
+export interface CommentRowProps {
+  item: Item;
+  depth: number;
+  focus?: number | undefined;
+  root?: number;
+  parent?: number;
+  prev?: number;
+  next?: number;
+}
 
 export const CommentRow = ({
   item,
   depth,
   focus,
-}: {
-  item: Item;
-  depth: number;
-  focus?: number | undefined;
-}) => {
+  root,
+  parent,
+  prev,
+  next,
+}: CommentRowProps) => {
   useEffect(() => {
     if (focus) {
       const element = document.getElementById(`comment-${focus}`);
@@ -30,6 +40,18 @@ export const CommentRow = ({
       return "";
     }
     return classNames({ [styles.animate]: true });
+  };
+
+  const onClickScroll = (ev: MouseEvent<HTMLAnchorElement>) => {
+    ev.preventDefault();
+
+    const targetId = ev.currentTarget.getAttribute("data-id");
+    if (!targetId) return;
+
+    const element = document.getElementById(`comment-${targetId}`);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   };
 
   return (
@@ -59,7 +81,64 @@ export const CommentRow = ({
                     >
                       {convertNumberToTimeAgo(item.created.getTime())}
                     </Link>
-                    <span>{" | next [-]"}</span>
+                    {" | "}
+                    {root ? (
+                      <>
+                        <a
+                          className="hover:underline cursor-pointer"
+                          data-id={root}
+                          onClick={onClickScroll}
+                        >
+                          root
+                        </a>
+                        {" | "}
+                      </>
+                    ) : (
+                      <></>
+                    )}
+                    {parent ? (
+                      <>
+                        <a
+                          className="hover:underline cursor-pointer"
+                          data-id={parent}
+                          onClick={onClickScroll}
+                        >
+                          parent
+                        </a>
+                        {" | "}
+                      </>
+                    ) : (
+                      <></>
+                    )}
+                    {prev ? (
+                      <>
+                        <a
+                          className="hover:underline cursor-pointer"
+                          data-id={prev}
+                          onClick={onClickScroll}
+                        >
+                          prev
+                        </a>
+                        {" | "}
+                      </>
+                    ) : (
+                      <></>
+                    )}
+                    {next ? (
+                      <>
+                        <a
+                          className="hover:underline cursor-pointer"
+                          data-id={next}
+                          onClick={onClickScroll}
+                        >
+                          next
+                        </a>
+                        {" | "}
+                      </>
+                    ) : (
+                      <></>
+                    )}
+                    <span>{" [-]"}</span>
                   </span>
                 </div>
                 <div className="h-1"></div>
