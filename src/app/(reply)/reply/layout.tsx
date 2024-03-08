@@ -1,12 +1,11 @@
 import Header from "@/components/header";
 import { getCurrentUser } from "@/lib/api";
 
-export default async function SubmitLayout({
+export default async function ReplyLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  console.log("AppLayout");
   const user = await getCurrentUser();
   return (
     <table className="bg-main-content-color w-5/6 mx-auto">

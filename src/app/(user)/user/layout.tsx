@@ -6,7 +6,6 @@ export default async function UserLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  console.log("AppLayout");
   const user = await getCurrentUser();
   return (
     <table className="bg-main-content-color w-5/6 mx-auto">

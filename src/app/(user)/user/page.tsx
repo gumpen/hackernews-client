@@ -6,8 +6,6 @@ export default async function UserPage({
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  console.log("UserPage");
-
   let paramsId = searchParams["id"];
 
   if (!paramsId) {

@@ -150,7 +150,6 @@ export async function postComment(
   state: PostCommentActionState,
   form: FormData
 ): Promise<PostCommentActionState> {
-  console.log("postComment");
   const cookieStore = cookies();
   const userCookie = cookieStore.get("user");
   if (!userCookie) {

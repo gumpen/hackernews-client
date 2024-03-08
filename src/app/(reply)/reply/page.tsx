@@ -2,12 +2,18 @@ import { z } from "zod";
 import { itemService } from "@/server/service";
 import { redirect } from "next/navigation";
 import { CommentForm } from "@/components/comment-form";
+import { getCurrentUser } from "@/lib/api";
 
 export default async function ReplyPage({
   searchParams,
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
+  const user = await getCurrentUser();
+  if (!user) {
+    redirect("/login");
+  }
+
   const itemIdSchema = z.coerce.number().min(1);
   const parseResult = itemIdSchema.safeParse(searchParams["id"]);
   if (!parseResult.success) {

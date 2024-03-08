@@ -1,8 +1,10 @@
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { userService } from "../server/service";
 
-export const getCurrentUser = async () => {
-  console.log("getCurrentUser");
+export const getCurrentUser = cache(async () => originalGetCurrentUser());
+
+export const originalGetCurrentUser = async () => {
   const cookieStore = cookies();
   const userString = cookieStore.get("user");
   if (!userString) {

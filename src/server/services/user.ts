@@ -169,8 +169,6 @@ export class UserService {
       return acc;
     }, {} as UpdateUserProps);
 
-    console.log("updateUser", data);
-
     const updatedUser = await this.db.user.update({
       where: {
         id: user.id,
