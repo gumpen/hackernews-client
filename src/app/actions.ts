@@ -6,6 +6,7 @@ import { userService, itemService } from "@/server/service";
 import { cookies } from "next/headers";
 import { Item } from "@prisma/client";
 import { redirect } from "next/navigation";
+import { z } from "zod";
 
 export interface UpdateUserActionState {
   user?: User;
@@ -115,6 +116,14 @@ export async function postStory(
     };
   }
 
+  // urlとtextがどちらもblankはエラー
+  if ((!url || !url.toString()) && (!text || !text.toString())) {
+    return {
+      success: false,
+      message: "invalid params",
+    };
+  }
+
   const payload = {
     userId: currentUser.id,
     title: title.toString(),
@@ -129,4 +138,72 @@ export async function postStory(
   //   item: item,
   //   success: true,
   // };
+}
+
+export interface PostCommentyActionState {
+  item?: Item;
+  success: boolean;
+  message?: string;
+}
+
+export async function postComment(
+  state: PostCommentyActionState,
+  form: FormData
+): Promise<PostCommentyActionState> {
+  console.log("postComment");
+  const cookieStore = cookies();
+  const userCookie = cookieStore.get("user");
+  if (!userCookie) {
+    return {
+      success: false,
+      message: "invalid token",
+    };
+  }
+
+  const { username, token } = splitToken(userCookie.value);
+  if (!username || !token) {
+    return {
+      success: false,
+      message: "invalid token",
+    };
+  }
+  const currentUser = await userService.getUserByToken(username, token);
+  if (!currentUser) {
+    return {
+      success: false,
+      message: "unauthorized user",
+    };
+  }
+
+  const formSchema = z.object({
+    text: z.string().min(1),
+    parentId: z.coerce.number().min(1),
+    ancestorId: z.coerce.number().min(1),
+  });
+
+  const parseResult = formSchema.safeParse({
+    text: form.get("text"),
+    parentId: form.get("parent"),
+    ancestorId: form.get("ancestor"),
+  });
+  if (!parseResult.success) {
+    return {
+      success: false,
+      message: "invalid params",
+    };
+  }
+  const { text, parentId, ancestorId } = parseResult.data;
+  const item = await itemService.createComment({
+    userId: currentUser.id,
+    parentId,
+    ancestorId,
+    text,
+  });
+
+  return {
+    success: true,
+    item: item,
+  };
+
+  // redirect(`/item?id=${parentId}`);
 }

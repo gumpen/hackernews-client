@@ -30,4 +30,42 @@ export class ItemService {
 
     return item;
   };
+
+  getItem = async (id: number) => {
+    const item = await this.db.item.findUnique({
+      where: {
+        id: id,
+      },
+      include: {
+        kids: true,
+        descendants: true,
+      },
+    });
+
+    return item;
+  };
+
+  createComment = async ({
+    userId,
+    parentId,
+    ancestorId,
+    text,
+  }: {
+    userId: string;
+    parentId: number;
+    ancestorId: number;
+    text: string;
+  }) => {
+    const item = await this.db.item.create({
+      data: {
+        type: "comment",
+        userId: userId,
+        parentId: parentId,
+        ancestorId: ancestorId,
+        text: text,
+      },
+    });
+
+    return item;
+  };
 }
