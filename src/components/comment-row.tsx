@@ -47,10 +47,18 @@ export const CommentRow = ({
               <td>
                 <div className="text-2xs text-content-gray">
                   <span>
-                    <Link href={`/user?id=${item.userId}`}>{item.userId}</Link>{" "}
-                    <span>
+                    <Link
+                      className="hover:underline"
+                      href={`/user?id=${item.userId}`}
+                    >
+                      {item.userId}
+                    </Link>{" "}
+                    <Link
+                      className="hover:underline"
+                      href={`/item?id=${item.id}`}
+                    >
                       {convertNumberToTimeAgo(item.created.getTime())}
-                    </span>
+                    </Link>
                     <span>{" | next [-]"}</span>
                   </span>
                 </div>

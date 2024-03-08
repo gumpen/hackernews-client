@@ -5,10 +5,10 @@ import { toHostname, convertNumberToTimeAgo } from "@/lib/util";
 import { PostCommentActionState, postComment } from "@/app/actions";
 import { useRef, FormEvent } from "react";
 import { useFormState } from "react-dom";
-import { ItemWithKids } from "@/lib/definitions";
+import { ItemWithDescendants } from "@/lib/definitions";
 
 interface Props {
-  item: ItemWithKids;
+  item: ItemWithDescendants;
 }
 
 export const ItemDetail = ({ item }: Props) => {
@@ -74,7 +74,7 @@ export const ItemDetail = ({ item }: Props) => {
               {" | "}
               <span>favorite</span>
               {" | "}
-              <span>{item.kids?.length || 0} comments</span>
+              <span>{item.descendants?.length || 0} comments</span>
             </span>
           </td>
         </tr>

@@ -67,3 +67,16 @@ export const splitToken = (tokenStr: string) => {
     token: split[1],
   };
 };
+
+export const addQueryParameter = (
+  url: string,
+  paramKey: string,
+  paramValue: string
+) => {
+  const baseUrl = "https://example.com";
+  const fullUrl = new URL(url, baseUrl);
+
+  fullUrl.searchParams.append(paramKey, paramValue);
+
+  return fullUrl.href.replace(baseUrl, "");
+};

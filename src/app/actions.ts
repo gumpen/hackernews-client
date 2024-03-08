@@ -1,7 +1,7 @@
 "use server";
 
 import { User } from "@/lib/definitions";
-import { splitToken } from "@/lib/util";
+import { addQueryParameter, splitToken } from "@/lib/util";
 import { userService, itemService } from "@/server/service";
 import { cookies } from "next/headers";
 import { Item } from "@prisma/client";
@@ -266,11 +266,12 @@ export async function replyComment(
     text,
   });
 
-  // return {
-  //   success: true,
-  //   item: item,
-  // };
-
-  // TODO: postCommentと共通化する
-  redirect(`/item?id=${ancestorId}&focus=${item.id}`);
+  const gotoPath = form.get("goto")?.toString();
+  if (gotoPath) {
+    const p = addQueryParameter(gotoPath, "focus", item.id.toString());
+    redirect(p);
+  } else {
+    // TODO: postCommentと共通化する
+    redirect(`/item?id=${ancestorId}&focus=${item.id}`);
+  }
 }
