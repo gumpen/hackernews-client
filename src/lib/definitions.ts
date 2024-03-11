@@ -9,7 +9,7 @@ export interface User {
 }
 
 export interface ItemWithKids extends Item {
-  kids?: Item[];
+  kids?: ItemWithKids[];
 }
 
 export interface ItemWithDescendants extends Item {
