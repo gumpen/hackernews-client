@@ -14,16 +14,18 @@ datasource db {
 }
 
 model User {
-  id             String        @id
-  about          String?       @default("")
-  created        DateTime      @default(now())
-  karma          Int           @default(1)
+  id             String             @id
+  about          String?            @default("")
+  created        DateTime           @default(now())
+  karma          Int                @default(1)
   submitted      Int[]
   email          String?
   passwordSalt   String
   hashedPassword String
   sessions       UserSession[]
   items          Item[]
+  upvotedItems   UpvotesOnItems[]
+  favoriteItems  FavoritesOnItems[]
 }
 
 model UserSession {
@@ -35,26 +37,42 @@ model UserSession {
 }
 
 model Item {
-  id          Int      @id @default(autoincrement())
-  deleted     Boolean  @default(false)
-  type        String
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
-  created     DateTime @default(now())
-  text        String?  @db.Text // 65535bytes
-  dead        Boolean  @default(false)
-  parentId    Int?
-  parent      Item?    @relation("ParentKids", fields: [parentId], references: [id])
-  kids        Item[]   @relation("ParentKids")
-  ancestorId  Int?
-  ancestor    Item?    @relation("AncestorDescendants", fields: [ancestorId], references: [id])
-  descendants Item[]   @relation("AncestorDescendants")
-  url         String?
-  title       String?
+  id             Int                @id @default(autoincrement())
+  deleted        Boolean            @default(false)
+  type           String
+  userId         String
+  user           User               @relation(fields: [userId], references: [id])
+  created        DateTime           @default(now())
+  text           String?            @db.Text // 65535bytes
+  dead           Boolean            @default(false)
+  parentId       Int?
+  parent         Item?              @relation("ParentKids", fields: [parentId], references: [id])
+  kids           Item[]             @relation("ParentKids")
+  ancestorId     Int?
+  ancestor       Item?              @relation("AncestorDescendants", fields: [ancestorId], references: [id])
+  descendants    Item[]             @relation("AncestorDescendants")
+  url            String?
+  title          String?
+  upvotedUsers   UpvotesOnItems[]
+  favoritedUsers FavoritesOnItems[]
 }
 
-// enum ItemType {
-//   STORY
-//   COMMENT
-//   JOB
-// }
+model UpvotesOnItems {
+  item    Item     @relation(fields: [itemId], references: [id])
+  itemId  Int
+  user    User     @relation(fields: [userId], references: [id])
+  userId  String
+  created DateTime @default(now())
+
+  @@id([itemId, userId])
+}
+
+model FavoritesOnItems {
+  item    Item     @relation(fields: [itemId], references: [id])
+  itemId  Int
+  user    User     @relation(fields: [userId], references: [id])
+  userId  String
+  created DateTime @default(now())
+
+  @@id([itemId, userId])
+}

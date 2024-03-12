@@ -84,4 +84,36 @@ export class ItemService {
 
     return items;
   };
+
+  getUpvotedSubmissionsByUserId = async (userId: string) => {
+    const items = await this.db.item.findMany({
+      where: {
+        AND: [
+          { type: "story" },
+          { upvotedUsers: { some: { userId: userId } } },
+        ],
+      },
+      include: {
+        descendants: true,
+      },
+    });
+
+    return items;
+  };
+
+  getUpvotedCommentsByUserId = async (userId: string) => {
+    const items = await this.db.item.findMany({
+      where: {
+        AND: [
+          { type: "comment" },
+          { upvotedUsers: { some: { userId: userId } } },
+        ],
+      },
+      include: {
+        ancestor: true,
+      },
+    });
+
+    return items;
+  };
 }

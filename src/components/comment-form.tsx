@@ -5,13 +5,29 @@ import { Item } from "@prisma/client";
 import { useFormState } from "react-dom";
 import { convertNumberToTimeAgo } from "@/lib/util";
 import Link from "next/link";
+import { CommentInputForm } from "./comment-input-form";
+import { User } from "@/lib/definitions";
+import { useState } from "react";
+import { UpvoteButton } from "./upvote-button";
+import { UnvoteTextButton } from "./unvote-text-button";
 
 interface Props {
   item: Item;
   ancestorItem: Item;
+  user: User | null;
 }
 
-export const CommentForm = ({ item, ancestorItem }: Props) => {
+export const CommentForm = ({ item, ancestorItem, user }: Props) => {
+  const userUpvotedItemIds = () => {
+    if (user && user.upvotedItems) {
+      return user.upvotedItems.map((relation) => relation.itemId);
+    } else {
+      return [];
+    }
+  };
+
+  const [voted, setVoted] = useState(userUpvotedItemIds().includes(item.id));
+
   const [formState, formDispatch] = useFormState(
     replyComment,
     {} as ReplyCommentActionState
@@ -25,15 +41,30 @@ export const CommentForm = ({ item, ancestorItem }: Props) => {
             className="text-sm pt-1"
             style={{ textAlign: "right", verticalAlign: "top" }}
           ></td>
-          <td className="align-top">
-            <div className="w-3 h-3 mx-1 mb-1">
-              <img src="triangle.svg" width={10} height={10} className="mt-1" />
-            </div>
+          <td className="pt-0.5 align-top">
+            <UpvoteButton
+              userId={user?.id}
+              itemId={item.id}
+              voted={voted}
+              setVoted={setVoted}
+            ></UpvoteButton>
           </td>
           <td className="text-2xs">
             <span className="text-content-gray">
               <span>{item.userId} </span>
               <span>{convertNumberToTimeAgo(item.created.getTime())}</span>
+              {voted ? (
+                <>
+                  {" | "}
+                  <UnvoteTextButton
+                    userId={user?.id}
+                    itemId={item.id}
+                    setVoted={setVoted}
+                  ></UnvoteTextButton>
+                </>
+              ) : (
+                <></>
+              )}
               {" | "}
               <span>parent</span>
               {" | "}
@@ -59,27 +90,12 @@ export const CommentForm = ({ item, ancestorItem }: Props) => {
         <tr>
           <td colSpan={2} />
           <td>
-            <form action={formDispatch} className="mb-4">
-              <input type="hidden" name="parent" value={item.id}></input>
-              <input
-                type="hidden"
-                name="ancestor"
-                value={ancestorItem.id}
-              ></input>
-              <textarea
-                name="text"
-                className="text-xs border border-gray-500 py-px px-0.5"
-                rows={8}
-                cols={80}
-              ></textarea>
-              <br />
-              <br />
-              <input
-                className="border border-gray-500 bg-gray-200 text-sm py-px px-1.5"
-                type="submit"
-                value="reply"
-              ></input>
-            </form>
+            <CommentInputForm
+              formAction={formDispatch}
+              parentId={item.id}
+              ancestorId={ancestorItem.id}
+              submitTitle="reply"
+            ></CommentInputForm>
           </td>
         </tr>
       </tbody>

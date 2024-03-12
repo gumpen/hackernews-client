@@ -1,70 +1,42 @@
-import { convertNumberToTimeAgo, toHostname } from "@/lib/util";
-import { ItemWithDescendants } from "@/lib/definitions";
-import Link from "next/link";
+import { ItemWithDescendants, User } from "@/lib/definitions";
+import { NewsItem } from "./news-item";
 
-const NewsFeed = ({ items }: { items: ItemWithDescendants[] }) => {
+const NewsFeed = ({
+  items,
+  user,
+}: {
+  items: ItemWithDescendants[];
+  user?: User;
+}) => {
+  // const userFavoriteIds = (): number[] => {
+  //   if (user && user.favoriteItems) {
+  //     return user.favoriteItems.map((relation) => relation.itemId);
+  //   } else {
+  //     return [];
+  //   }
+  // };
+
+  const userUpvotedIds = (): number[] => {
+    if (user && user.upvotedItems) {
+      return user.upvotedItems.map((relation) => relation.itemId);
+    } else {
+      return [];
+    }
+  };
+
   return (
     <table>
       <tbody>
         {items.map((item, i) => {
+          const voted = userUpvotedIds().includes(item.id);
           return (
-            <>
-              <tr key={`${item.id}-title-row`}>
-                <td
-                  className="text-sm pt-1"
-                  style={{ textAlign: "right", verticalAlign: "top" }}
-                >
-                  <span className="text-content-gray">{`${i + 1}.`}</span>
-                </td>
-                <td className="pt-1" style={{ verticalAlign: "top" }}>
-                  <div className="w-3 h-3 mx-1">
-                    <img
-                      src="triangle.svg"
-                      width={10}
-                      height={10}
-                      className="mt-1"
-                    />
-                  </div>
-                </td>
-                <td>
-                  <span className="text-sm">
-                    <a href={item.url ?? ""} target="_blank">
-                      {item.title}
-                    </a>
-                  </span>
-                  <span className="text-2xs text-content-gray">{` (${toHostname(item.url ?? "")})`}</span>
-                </td>
-              </tr>
-              <tr className="h-1" key={`${item.id}-detail-row`}>
-                <td colSpan={2} />
-                <td className="text-3xs">
-                  <span className="text-content-gray">
-                    <span>n points</span>{" "}
-                    <Link
-                      className="hover:underline"
-                      href={`/user?id=${item.userId}`}
-                    >
-                      by {item.userId}
-                    </Link>{" "}
-                    <Link
-                      className="hover:underline"
-                      href={`/item?id=${item.id}`}
-                    >
-                      {convertNumberToTimeAgo(item.created.getTime())}
-                    </Link>
-                    {" | "}
-                    <span>hide</span>
-                    {" | "}
-                    <Link
-                      className="hover:underline"
-                      href={`/item?id=${item.id}`}
-                    >
-                      {item.descendants?.length ?? 0} comments
-                    </Link>
-                  </span>
-                </td>
-              </tr>
-            </>
+            <NewsItem
+              item={item}
+              user={user}
+              index={i}
+              voted={voted}
+              key={item.id}
+            ></NewsItem>
           );
         })}
       </tbody>

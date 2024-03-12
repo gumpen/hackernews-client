@@ -9,6 +9,7 @@ export interface Props {
   title?: string;
   isNavVisible?: boolean;
   isAuthVisible?: boolean;
+  pageNameShowInNav?: string | undefined;
 }
 
 const Header = ({
@@ -16,6 +17,7 @@ const Header = ({
   title = "Hacker News",
   isNavVisible = true,
   isAuthVisible = true,
+  pageNameShowInNav,
 }: Props) => {
   // const { user } = props;
 
@@ -51,7 +53,11 @@ const Header = ({
             </Link>
           </td>
           <td>
-            <HeaderNav title={title} isNavVisible={isNavVisible}></HeaderNav>
+            <HeaderNav
+              title={title}
+              isNavVisible={isNavVisible}
+              pageNameShowInNav={pageNameShowInNav}
+            ></HeaderNav>
           </td>
           {isAuthVisible ? (
             <td className="text-right pr-1">

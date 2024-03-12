@@ -98,6 +98,43 @@ export const UserForm = (props: Props) => {
                 ></input>
               </td>
             </tr>
+            <tr>
+              <td></td>
+              <td className="text-sm">
+                <Link
+                  className="underline"
+                  href={`/upvoted?id=${currentUser.id}`}
+                >
+                  upvoted submissions
+                </Link>
+                {" / "}
+                <Link
+                  className="underline"
+                  href={`/upvoted?id=${currentUser.id}&comments=t`}
+                >
+                  comments
+                </Link>
+              </td>
+            </tr>
+            <tr>
+              <td></td>
+              <td className="text-sm">
+                <Link
+                  className="underline"
+                  href={`/favorites?id=${currentUser.id}`}
+                >
+                  favorite submissions
+                </Link>
+                {" / "}
+                <Link
+                  className="underline"
+                  href={`/favorites?id=${currentUser.id}&comments=t`}
+                >
+                  comments
+                </Link>
+                <i>{" (publicly visible)"}</i>
+              </td>
+            </tr>
           </tbody>
         </table>
         <br />
@@ -130,6 +167,24 @@ export const UserForm = (props: Props) => {
         <tr>
           <td className="align-top">about:</td>
           <td className="overflow-hidden">{displayUser.about}</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td className="text-sm">
+            <Link
+              className="underline"
+              href={`/favorites?id=${displayUser.id}`}
+            >
+              favorite submissions
+            </Link>
+            {" / "}
+            <Link
+              className="underline"
+              href={`/favorites?id=${displayUser.id}&comments=t`}
+            >
+              comments
+            </Link>
+          </td>
         </tr>
       </tbody>
     </table>

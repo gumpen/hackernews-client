@@ -1,13 +1,14 @@
 import { Item } from "@prisma/client";
-import { ItemWithDescendants, ItemWithKids } from "@/lib/definitions";
+import { ItemWithDescendants, ItemWithKids, User } from "@/lib/definitions";
 import { CommentRow, CommentRowProps } from "./comment-row";
 
 interface Props {
   item: ItemWithDescendants;
   focus?: number;
+  user?: User | null;
 }
 
-export const CommentTree = ({ item, focus }: Props) => {
+export const CommentTree = ({ item, focus, user }: Props) => {
   const buildDescendantsTree = (
     rootItem: ItemWithDescendants
   ): ItemWithKids[] => {
@@ -38,11 +39,25 @@ export const CommentTree = ({ item, focus }: Props) => {
   };
 
   const buildCommentTreeComponents = (items: ItemWithKids[]): JSX.Element[] => {
+    const userId = user ? user.id : undefined;
+    const userUpvotedItemIds = user?.upvotedItems
+      ? user.upvotedItems.map((relation) => relation.itemId)
+      : [];
+
     return items.reduce<JSX.Element[]>((components, item, index, array) => {
       const props: CommentRowProps = {
         item: item,
         focus: focus,
       };
+
+      if (userId) {
+        props.userId = userId;
+      }
+
+      if (userUpvotedItemIds) {
+        props.userUpvotedItemIds = userUpvotedItemIds;
+      }
+
       // prev
       // 条件: 同depth(階層)のcommentが2件以上あり、最初のものではない
       // 動作: 同depthの1件前のcommentへ移動

@@ -7,6 +7,8 @@ import styles from "./style.module.css";
 import classNames from "classnames";
 import { useEffect, MouseEvent, useState } from "react";
 import { ItemWithKids } from "@/lib/definitions";
+import { UpvoteButton } from "./upvote-button";
+import { UnvoteTextButton } from "./unvote-text-button";
 
 export interface CommentRowProps {
   item: ItemWithKids;
@@ -17,6 +19,8 @@ export interface CommentRowProps {
   prev?: number;
   next?: number;
   hidden?: boolean;
+  userId?: string;
+  userUpvotedItemIds?: number[];
 }
 
 export const CommentRow = ({
@@ -28,8 +32,13 @@ export const CommentRow = ({
   prev,
   next,
   hidden = false,
+  userId,
+  userUpvotedItemIds,
 }: CommentRowProps) => {
   const [collapse, setCollapse] = useState(false);
+  const [voted, setVoted] = useState(
+    userUpvotedItemIds?.includes(item.id) ?? false
+  );
 
   useEffect(() => {
     if (focus) {
@@ -95,6 +104,13 @@ export const CommentRow = ({
           hidden: hidden,
         };
 
+        if (userId) {
+          props.userId = userId;
+        }
+        if (userUpvotedItemIds) {
+          props.userUpvotedItemIds = userUpvotedItemIds;
+        }
+
         // root
         // 条件: depthが2以上(3階層目以降)
         // 動作: depthが0のroot commentへ移動、storyではない
@@ -153,15 +169,13 @@ export const CommentRow = ({
             <tbody>
               <tr>
                 <td width={40 * depth}></td>
-                <td style={{ verticalAlign: "top" }}>
-                  <div className="w-3 h-3 mx-1 mt-0.5">
-                    <img
-                      className={classNames({ invisible: collapse })}
-                      src="triangle.svg"
-                      width={10}
-                      height={10}
-                    />
-                  </div>
+                <td className="align-top pt-0.5">
+                  <UpvoteButton
+                    userId={userId}
+                    itemId={item.id}
+                    voted={voted}
+                    setVoted={setVoted}
+                  ></UpvoteButton>
                 </td>
                 <td>
                   <div className="text-2xs text-content-gray">
@@ -178,6 +192,18 @@ export const CommentRow = ({
                       >
                         {convertNumberToTimeAgo(item.created.getTime())}
                       </Link>
+                      {voted ? (
+                        <>
+                          {" | "}
+                          <UnvoteTextButton
+                            userId={userId}
+                            itemId={item.id}
+                            setVoted={setVoted}
+                          ></UnvoteTextButton>
+                        </>
+                      ) : (
+                        <></>
+                      )}
                       {" | "}
                       {root ? (
                         <>

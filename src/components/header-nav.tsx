@@ -3,9 +3,14 @@ import Link from "next/link";
 interface Props {
   title: string;
   isNavVisible?: boolean;
+  pageNameShowInNav?: string | undefined;
 }
 
-const HeaderNav = ({ title, isNavVisible = true }: Props) => {
+const HeaderNav = ({
+  title,
+  isNavVisible = true,
+  pageNameShowInNav,
+}: Props) => {
   return isNavVisible ? (
     <span className="text-sm">
       <Link href={"/news"}>
@@ -26,6 +31,14 @@ const HeaderNav = ({ title, isNavVisible = true }: Props) => {
       <a>jobs</a>
       {" | "}
       <Link href={"/submit"}>submit</Link>
+      {pageNameShowInNav ? (
+        <>
+          {" | "}
+          <span className="text-white">{pageNameShowInNav}</span>
+        </>
+      ) : (
+        <></>
+      )}
     </span>
   ) : (
     <span className="text-sm">

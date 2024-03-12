@@ -275,3 +275,137 @@ export async function replyComment(
     redirect(`/item?id=${ancestorId}&focus=${item.id}`);
   }
 }
+
+interface UpvoteResult {
+  success: boolean;
+  message?: string;
+}
+
+export async function upvote(
+  userId: string,
+  itemId: number
+): Promise<UpvoteResult> {
+  const cookieStore = cookies();
+  const userCookie = cookieStore.get("user");
+  if (!userCookie) {
+    return {
+      success: false,
+      message: "invalid token",
+    };
+  }
+
+  const { username, token } = splitToken(userCookie.value);
+  if (!username || !token) {
+    return {
+      success: false,
+      message: "invalid token",
+    };
+  }
+  const currentUser = await userService.getUserByToken(username, token);
+  if (!currentUser) {
+    return {
+      success: false,
+      message: "unauthorized user",
+    };
+  }
+  if (currentUser.id !== userId) {
+    return {
+      success: false,
+      message: "unauthorized user",
+    };
+  }
+
+  const user = await userService.getUserWithUpvotedIds(userId);
+  if (!user) {
+    return {
+      success: false,
+      message: "unauthorized user",
+    };
+  }
+
+  if (user.upvotedItems.map((relation) => relation.itemId).includes(itemId)) {
+    return {
+      success: false,
+      message: "already upvoted",
+    };
+  }
+
+  try {
+    await userService.upvoteItem(user.id, itemId);
+    return {
+      success: true,
+    };
+  } catch (err: any) {
+    return {
+      success: false,
+      message: err.message,
+    };
+  }
+}
+
+interface UnvoteResult {
+  success: boolean;
+  message?: string;
+}
+
+export async function unvote(
+  userId: string,
+  itemId: number
+): Promise<UnvoteResult> {
+  const cookieStore = cookies();
+  const userCookie = cookieStore.get("user");
+  if (!userCookie) {
+    return {
+      success: false,
+      message: "invalid token",
+    };
+  }
+
+  const { username, token } = splitToken(userCookie.value);
+  if (!username || !token) {
+    return {
+      success: false,
+      message: "invalid token",
+    };
+  }
+  const currentUser = await userService.getUserByToken(username, token);
+  if (!currentUser) {
+    return {
+      success: false,
+      message: "unauthorized user",
+    };
+  }
+  if (currentUser.id !== userId) {
+    return {
+      success: false,
+      message: "unauthorized user",
+    };
+  }
+
+  const user = await userService.getUserWithUpvotedIds(userId);
+  if (!user) {
+    return {
+      success: false,
+      message: "unauthorized user",
+    };
+  }
+
+  if (!user.upvotedItems.map((relation) => relation.itemId).includes(itemId)) {
+    return {
+      success: false,
+      message: "item is not upvoted",
+    };
+  }
+
+  try {
+    await userService.unvoteItem(user.id, itemId);
+    return {
+      success: true,
+    };
+  } catch (err: any) {
+    return {
+      success: false,
+      message: err.message,
+    };
+  }
+}

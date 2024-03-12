@@ -1,9 +1,11 @@
 import { ItemDetail } from "@/components/item-detail";
 import { CommentItemDetail } from "@/components/comment-item-detail";
 import { CommentTree } from "@/components/comment-tree";
-import { itemService } from "@/server/service";
+import { itemService, userService } from "@/server/service";
 import { z } from "zod";
 import { Item } from "@prisma/client";
+import { getCurrentUser } from "@/lib/api";
+import { User } from "@/lib/definitions";
 
 export default async function Item({
   searchParams,
@@ -21,11 +23,18 @@ export default async function Item({
     return <div>no such item</div>;
   }
 
+  const currentUser = await getCurrentUser();
+  const user = currentUser
+    ? await userService.getUserWithUpvotedIds(currentUser.id)
+    : null;
+
   let focusCommentId: number | undefined = undefined;
   try {
     const focusSchema = z.coerce.number().min(1);
     focusCommentId = focusSchema.parse(searchParams["focus"]);
-  } catch {}
+  } catch {
+    // coerceに失敗した場合はundefinedのまま
+  }
 
   if (item.type === "comment") {
     if (!item.ancestorId) {
@@ -56,13 +65,21 @@ export default async function Item({
 
     return (
       <>
-        <CommentItemDetail item={item} ancestorItem={story}></CommentItemDetail>
+        <CommentItemDetail
+          item={item}
+          ancestorItem={story}
+          user={user}
+        ></CommentItemDetail>
         <br />
         <br />
         {focusCommentId ? (
-          <CommentTree item={item} focus={focusCommentId}></CommentTree>
+          <CommentTree
+            item={item}
+            user={user}
+            focus={focusCommentId}
+          ></CommentTree>
         ) : (
-          <CommentTree item={item}></CommentTree>
+          <CommentTree item={item} user={user}></CommentTree>
         )}
       </>
     );
@@ -70,13 +87,17 @@ export default async function Item({
 
   return (
     <>
-      <ItemDetail item={item}></ItemDetail>
+      <ItemDetail item={item} user={user}></ItemDetail>
       <br />
       <br />
       {focusCommentId ? (
-        <CommentTree item={item} focus={focusCommentId}></CommentTree>
+        <CommentTree
+          item={item}
+          user={user}
+          focus={focusCommentId}
+        ></CommentTree>
       ) : (
-        <CommentTree item={item}></CommentTree>
+        <CommentTree item={item} user={user}></CommentTree>
       )}
     </>
   );
