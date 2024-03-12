@@ -56,6 +56,9 @@ export class ItemService {
     ancestorId: number;
     text: string;
   }) => {
+    console.log(userId);
+    console.log(parentId);
+    console.log(ancestorId);
     const item = await this.db.item.create({
       data: {
         type: "comment",
@@ -67,5 +70,18 @@ export class ItemService {
     });
 
     return item;
+  };
+
+  getStories = async () => {
+    const items = await this.db.item.findMany({
+      where: {
+        type: "story",
+      },
+      include: {
+        descendants: true,
+      },
+    });
+
+    return items;
   };
 }

@@ -1,0 +1,29 @@
+{
+  "data": [
+    {
+      "id": "alice",
+      "about": "first user",
+      "email": "alice@example.com"
+    },
+    {
+      "id": "bob",
+      "about": "second user",
+      "email": "bob@example.com"
+    },
+    {
+      "id": "charlie",
+      "about": "third user",
+      "email": "charlie@example.com"
+    },
+    {
+      "id": "dave",
+      "about": "fourth user",
+      "email": "dave@example.com"
+    },
+    {
+      "id": "ellen",
+      "about": "fifth user",
+      "email": "ellen@example.com"
+    }
+  ]
+}

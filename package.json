@@ -12,7 +12,8 @@
     "prettier-fix": "prettier --cache --write .",
     "lint-fix": "next lint --fix",
     "db-migrate": "npx prisma migrate dev",
-    "db-reset": "npx prisma migrate reset"
+    "db-reset": "npx prisma migrate reset",
+    "db-seed": "ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "5.10.2",

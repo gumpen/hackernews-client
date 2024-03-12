@@ -1,7 +1,8 @@
-import { Item } from "@/app/(app)/page";
 import { convertNumberToTimeAgo, toHostname } from "@/lib/util";
+import { ItemWithDescendants } from "@/lib/definitions";
+import Link from "next/link";
 
-const NewsFeed = ({ items }: { items: Item[] }) => {
+const NewsFeed = ({ items }: { items: ItemWithDescendants[] }) => {
   return (
     <table>
       <tbody>
@@ -27,24 +28,39 @@ const NewsFeed = ({ items }: { items: Item[] }) => {
                 </td>
                 <td>
                   <span className="text-sm">
-                    <a href={item.url} target="_blank">
+                    <a href={item.url ?? ""} target="_blank">
                       {item.title}
                     </a>
                   </span>
-                  <span className="text-2xs text-content-gray">{` (${toHostname(item.url)})`}</span>
+                  <span className="text-2xs text-content-gray">{` (${toHostname(item.url ?? "")})`}</span>
                 </td>
               </tr>
               <tr className="h-1" key={`${item.id}-detail-row`}>
                 <td colSpan={2} />
                 <td className="text-3xs">
                   <span className="text-content-gray">
-                    <span>{item.score} points</span>
-                    <span>by {item.by}</span>
-                    <span>{convertNumberToTimeAgo(item.time * 1000)}</span>
+                    <span>n points</span>{" "}
+                    <Link
+                      className="hover:underline"
+                      href={`/user?id=${item.userId}`}
+                    >
+                      by {item.userId}
+                    </Link>{" "}
+                    <Link
+                      className="hover:underline"
+                      href={`/item?id=${item.id}`}
+                    >
+                      {convertNumberToTimeAgo(item.created.getTime())}
+                    </Link>
                     {" | "}
                     <span>hide</span>
                     {" | "}
-                    <span>{item.descendants} comments</span>
+                    <Link
+                      className="hover:underline"
+                      href={`/item?id=${item.id}`}
+                    >
+                      {item.descendants?.length ?? 0} comments
+                    </Link>
                   </span>
                 </td>
               </tr>
