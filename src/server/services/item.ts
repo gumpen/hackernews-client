@@ -72,8 +72,10 @@ export class ItemService {
     return item;
   };
 
-  getStories = async () => {
+  getStories = async (page: number, perPage: number) => {
     const items = await this.db.item.findMany({
+      take: perPage,
+      skip: (page - 1) * perPage,
       where: {
         type: "story",
       },

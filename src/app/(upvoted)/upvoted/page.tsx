@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { itemService, userService } from "@/server/service";
 import NewsFeed from "@/components/news-feed";
 import { CommentFeed } from "@/components/comment-feed";
+import { ITEM_NUM_PER_PAGE } from "@/lib/constants";
 
 export default async function UpvotedPage({
   searchParams,
@@ -50,6 +51,16 @@ export default async function UpvotedPage({
     const items = await itemService.getUpvotedSubmissionsByUserId(
       currentUser.id
     );
-    return <NewsFeed items={items} user={withUpvoted} />;
+
+    // TODO: pagination対応
+    return (
+      <NewsFeed
+        items={items}
+        user={withUpvoted}
+        page={1}
+        perPage={ITEM_NUM_PER_PAGE}
+        currentPath={"/upvoted"}
+      />
+    );
   }
 }

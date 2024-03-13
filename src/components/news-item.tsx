@@ -9,12 +9,12 @@ import { useState } from "react";
 
 interface Props {
   item: ItemWithDescendants;
-  index: number;
+  rank: number;
   voted: boolean;
   user: User | undefined;
 }
 
-export const NewsItem = ({ item, index, voted: initialVoted, user }: Props) => {
+export const NewsItem = ({ item, rank, voted: initialVoted, user }: Props) => {
   const [voted, setVoted] = useState(initialVoted);
 
   return (
@@ -24,7 +24,7 @@ export const NewsItem = ({ item, index, voted: initialVoted, user }: Props) => {
           className="text-sm pt-0.5"
           style={{ textAlign: "right", verticalAlign: "top" }}
         >
-          <span className="text-content-gray">{`${index + 1}.`}</span>
+          <span className="text-content-gray">{`${rank}.`}</span>
         </td>
         <td className="pt-1.5 align-top">
           <UpvoteButton
