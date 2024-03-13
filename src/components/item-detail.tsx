@@ -9,6 +9,7 @@ import { ItemWithDescendants, User } from "@/lib/definitions";
 import { UpvoteButton } from "./upvote-button";
 import { UnvoteTextButton } from "./unvote-text-button";
 import { CommentInputForm } from "./comment-input-form";
+import { FavoriteTextButton } from "./favorite-text-button";
 
 interface Props {
   item: ItemWithDescendants;
@@ -24,7 +25,18 @@ export const ItemDetail = ({ item, user }: Props) => {
     }
   };
 
+  const userFavoritedItemIds = () => {
+    if (user && user.favoriteItems) {
+      return user.favoriteItems.map((relation) => relation.itemId);
+    } else {
+      return [];
+    }
+  };
+
   const [voted, setVoted] = useState(userUpvotedItemIds().includes(item.id));
+  const [favorited, setFavorited] = useState(
+    userFavoritedItemIds().includes(item.id)
+  );
   const ref = useRef<HTMLFormElement>(null);
 
   const handleFormSubmit = async (form: FormData) => {
@@ -96,7 +108,12 @@ export const ItemDetail = ({ item, user }: Props) => {
               {" | "}
               <span>past</span>
               {" | "}
-              <span>favorite</span>
+              <FavoriteTextButton
+                userId={user?.id}
+                itemId={item.id}
+                favorited={favorited}
+                setFavorited={setFavorited}
+              ></FavoriteTextButton>
               {" | "}
               <span>{item.descendants?.length || 0} comments</span>
             </span>

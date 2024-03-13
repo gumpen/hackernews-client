@@ -25,7 +25,7 @@ export default async function Item({
 
   const currentUser = await getCurrentUser();
   const user = currentUser
-    ? await userService.getUserWithUpvotedIds(currentUser.id)
+    ? await userService.getUserWithUpvotedAndFavoriteIds(currentUser.id)
     : null;
 
   let focusCommentId: number | undefined = undefined;

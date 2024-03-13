@@ -11,6 +11,7 @@ import { UpvoteButton } from "./upvote-button";
 import { UnvoteTextButton } from "./unvote-text-button";
 import { User } from "@/lib/definitions";
 import { useState } from "react";
+import { FavoriteTextButton } from "./favorite-text-button";
 
 interface Props {
   item: ItemWithKids;
@@ -27,7 +28,18 @@ export const CommentItemDetail = ({ item, ancestorItem, user }: Props) => {
     }
   };
 
+  const userFavoritedItemIds = () => {
+    if (user && user.favoriteItems) {
+      return user.favoriteItems.map((relation) => relation.itemId);
+    } else {
+      return [];
+    }
+  };
+
   const [voted, setVoted] = useState(userUpvotedItemIds().includes(item.id));
+  const [favorited, setFavorited] = useState(
+    userFavoritedItemIds().includes(item.id)
+  );
 
   const [formState, formDispatch] = useFormState(
     replyComment,
@@ -52,8 +64,15 @@ export const CommentItemDetail = ({ item, ancestorItem, user }: Props) => {
           </td>
           <td className="text-2xs">
             <span className="text-content-gray">
-              <span>{item.userId} </span>
-              <span>{convertNumberToTimeAgo(item.created.getTime())}</span>
+              <Link
+                className="hover:underline"
+                href={`/user?id=${item.userId}`}
+              >
+                {item.userId}
+              </Link>{" "}
+              <Link className="hover:underline" href={`/item?id=${item.id}`}>
+                {convertNumberToTimeAgo(item.created.getTime())}
+              </Link>
               {voted ? (
                 <>
                   {" | "}
@@ -67,9 +86,21 @@ export const CommentItemDetail = ({ item, ancestorItem, user }: Props) => {
                 <></>
               )}
               {" | "}
-              <span>parent</span>
+              <Link
+                className="hover:underline"
+                href={`/item?id=${item.parentId}`}
+              >
+                parent
+              </Link>
               {" | "}
               <span>context</span>
+              {" | "}
+              <FavoriteTextButton
+                userId={user?.id}
+                itemId={item.id}
+                favorited={favorited}
+                setFavorited={setFavorited}
+              ></FavoriteTextButton>
               {" | "}
               <span>on: </span>
               <Link

@@ -118,4 +118,36 @@ export class ItemService {
 
     return items;
   };
+
+  getFavoritedSubmissionsByUserId = async (userId: string) => {
+    const items = await this.db.item.findMany({
+      where: {
+        AND: [
+          { type: "story" },
+          { favoritedUsers: { some: { userId: userId } } },
+        ],
+      },
+      include: {
+        descendants: true,
+      },
+    });
+
+    return items;
+  };
+
+  getFavoritedCommentsByUserId = async (userId: string) => {
+    const items = await this.db.item.findMany({
+      where: {
+        AND: [
+          { type: "comment" },
+          { favoritedUsers: { some: { userId: userId } } },
+        ],
+      },
+      include: {
+        ancestor: true,
+      },
+    });
+
+    return items;
+  };
 }

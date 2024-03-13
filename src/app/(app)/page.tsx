@@ -19,12 +19,14 @@ export default async function Home({
   const stories = await itemService.getStories(pageNumber, ITEM_NUM_PER_PAGE);
   const currentUser = await getCurrentUser();
   if (currentUser) {
-    const withUpvoted = await userService.getUserWithUpvotedIds(currentUser.id);
-    if (withUpvoted) {
+    const withItemIds = await userService.getUserWithUpvotedAndFavoriteIds(
+      currentUser.id
+    );
+    if (withItemIds) {
       return (
         <NewsFeed
           items={stories}
-          user={withUpvoted}
+          user={withItemIds}
           page={pageNumber}
           perPage={ITEM_NUM_PER_PAGE}
           currentPath={"/"}

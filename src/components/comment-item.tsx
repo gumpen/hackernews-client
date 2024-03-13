@@ -6,19 +6,24 @@ import Link from "next/link";
 import { convertNumberToTimeAgo } from "@/lib/util";
 import { ItemWithAncestor } from "@/lib/definitions";
 import { useState } from "react";
+import { FavoriteTextButton } from "./favorite-text-button";
 
 interface Props {
   item: ItemWithAncestor;
   userId?: string | undefined;
   voted?: boolean;
+  favorited?: boolean;
 }
 
 export const CommentItem = ({
   item,
   userId,
   voted: initialVoted = false,
+  favorited: initialFavorited = false,
 }: Props) => {
   const [voted, setVoted] = useState(initialVoted);
+  const [favorited, setFavorited] = useState(initialFavorited);
+
   return (
     <tr key={item.id}>
       <td></td>
@@ -60,6 +65,13 @@ export const CommentItem = ({
             </Link>
             {" | "}
             <span>context</span>
+            {" | "}
+            <FavoriteTextButton
+              userId={userId}
+              itemId={item.id}
+              favorited={favorited}
+              setFavorited={setFavorited}
+            ></FavoriteTextButton>
             {" | "}
             <span>on: </span>
             <Link

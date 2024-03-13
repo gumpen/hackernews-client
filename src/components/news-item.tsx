@@ -6,16 +6,25 @@ import Link from "next/link";
 import { UpvoteButton } from "./upvote-button";
 import { UnvoteTextButton } from "./unvote-text-button";
 import { useState } from "react";
+import { FavoriteTextButton } from "./favorite-text-button";
 
 interface Props {
   item: ItemWithDescendants;
   rank: number;
   voted: boolean;
+  favorited: boolean;
   user: User | undefined;
 }
 
-export const NewsItem = ({ item, rank, voted: initialVoted, user }: Props) => {
+export const NewsItem = ({
+  item,
+  rank,
+  voted: initialVoted,
+  favorited: initialFavorited,
+  user,
+}: Props) => {
   const [voted, setVoted] = useState(initialVoted);
+  const [favorited, setFavorited] = useState(initialFavorited);
 
   return (
     <>
@@ -68,6 +77,13 @@ export const NewsItem = ({ item, rank, voted: initialVoted, user }: Props) => {
             )}
             {" | "}
             <span>hide</span>
+            {" | "}
+            <FavoriteTextButton
+              userId={user?.id}
+              itemId={item.id}
+              favorited={favorited}
+              setFavorited={setFavorited}
+            ></FavoriteTextButton>
             {" | "}
             <Link className="hover:underline" href={`/item?id=${item.id}`}>
               {item.descendants?.length ?? 0} comments

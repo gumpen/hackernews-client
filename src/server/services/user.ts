@@ -61,6 +61,28 @@ export class UserService {
     return user;
   }
 
+  async getUserWithUpvotedAndFavoriteIds(id: string) {
+    const user = await this.db.user.findUnique({
+      where: {
+        id: id,
+      },
+      include: {
+        upvotedItems: {
+          select: {
+            itemId: true,
+          },
+        },
+        favoriteItems: {
+          select: {
+            itemId: true,
+          },
+        },
+      },
+    });
+
+    return user;
+  }
+
   async resisterUser(id: string, password: string) {
     // validation
     if (id.length < 3 || id.length > 64) {
@@ -259,6 +281,65 @@ export class UserService {
       },
       data: {
         upvotedItems: {
+          delete: {
+            itemId_userId: {
+              itemId: itemId,
+              userId: userId,
+            },
+          },
+        },
+      },
+    });
+
+    return updatedUser;
+  }
+
+  async favoriteItem(userId: string, itemId: number) {
+    const user = await this.db.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+    if (!user) {
+      throw new Error("user does not exist");
+    }
+
+    const updatedUser = await this.db.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        favoriteItems: {
+          create: {
+            item: {
+              connect: {
+                id: itemId,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return updatedUser;
+  }
+
+  async unfavoriteItem(userId: string, itemId: number) {
+    const user = await this.db.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+    if (!user) {
+      throw new Error("user does not exist");
+    }
+
+    const updatedUser = await this.db.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        favoriteItems: {
           delete: {
             itemId_userId: {
               itemId: itemId,

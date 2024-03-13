@@ -409,3 +409,127 @@ export async function unvote(
     };
   }
 }
+
+export async function favorite(
+  userId: string,
+  itemId: number
+): Promise<UpvoteResult> {
+  const cookieStore = cookies();
+  const userCookie = cookieStore.get("user");
+  if (!userCookie) {
+    return {
+      success: false,
+      message: "invalid token",
+    };
+  }
+
+  const { username, token } = splitToken(userCookie.value);
+  if (!username || !token) {
+    return {
+      success: false,
+      message: "invalid token",
+    };
+  }
+  const currentUser = await userService.getUserByToken(username, token);
+  if (!currentUser) {
+    return {
+      success: false,
+      message: "unauthorized user",
+    };
+  }
+  if (currentUser.id !== userId) {
+    return {
+      success: false,
+      message: "unauthorized user",
+    };
+  }
+
+  const user = await userService.getUserWithFavoriteIds(userId);
+  if (!user) {
+    return {
+      success: false,
+      message: "unauthorized user",
+    };
+  }
+
+  if (user.favoriteItems.map((relation) => relation.itemId).includes(itemId)) {
+    return {
+      success: false,
+      message: "already favorited",
+    };
+  }
+
+  try {
+    await userService.favoriteItem(user.id, itemId);
+    return {
+      success: true,
+    };
+  } catch (err: any) {
+    return {
+      success: false,
+      message: err.message,
+    };
+  }
+}
+
+export async function unfavorite(
+  userId: string,
+  itemId: number
+): Promise<UpvoteResult> {
+  const cookieStore = cookies();
+  const userCookie = cookieStore.get("user");
+  if (!userCookie) {
+    return {
+      success: false,
+      message: "invalid token",
+    };
+  }
+
+  const { username, token } = splitToken(userCookie.value);
+  if (!username || !token) {
+    return {
+      success: false,
+      message: "invalid token",
+    };
+  }
+  const currentUser = await userService.getUserByToken(username, token);
+  if (!currentUser) {
+    return {
+      success: false,
+      message: "unauthorized user",
+    };
+  }
+  if (currentUser.id !== userId) {
+    return {
+      success: false,
+      message: "unauthorized user",
+    };
+  }
+
+  const user = await userService.getUserWithFavoriteIds(userId);
+  if (!user) {
+    return {
+      success: false,
+      message: "unauthorized user",
+    };
+  }
+
+  if (!user.favoriteItems.map((relation) => relation.itemId).includes(itemId)) {
+    return {
+      success: false,
+      message: "item is not favorited",
+    };
+  }
+
+  try {
+    await userService.unfavoriteItem(user.id, itemId);
+    return {
+      success: true,
+    };
+  } catch (err: any) {
+    return {
+      success: false,
+      message: err.message,
+    };
+  }
+}
