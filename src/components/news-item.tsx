@@ -1,7 +1,7 @@
 "use client";
 
 import { convertNumberToTimeAgo, toHostname } from "@/lib/util";
-import { ItemWithDescendants, User } from "@/lib/definitions";
+import { Item, ItemWithDescendants, AppUser } from "@/lib/definitions";
 import Link from "next/link";
 import { UpvoteButton } from "./upvote-button";
 import { UnvoteTextButton } from "./unvote-text-button";
@@ -9,11 +9,11 @@ import { useState } from "react";
 import { FavoriteTextButton } from "./favorite-text-button";
 
 interface Props {
-  item: ItemWithDescendants;
+  item: Item;
   rank: number;
   voted: boolean;
   favorited: boolean;
-  user: User | undefined;
+  user: AppUser | undefined;
 }
 
 export const NewsItem = ({
@@ -25,6 +25,19 @@ export const NewsItem = ({
 }: Props) => {
   const [voted, setVoted] = useState(initialVoted);
   const [favorited, setFavorited] = useState(initialFavorited);
+
+  const itemPoint = () => {
+    let point = 1;
+    if (item._count && item._count.upvotedUsers) {
+      point = item._count.upvotedUsers + 1;
+    }
+
+    if (point === 1) {
+      return "1 point";
+    } else {
+      return `${point} points`;
+    }
+  };
 
   return (
     <>
@@ -56,7 +69,7 @@ export const NewsItem = ({
         <td colSpan={2} />
         <td className="text-3xs">
           <span className="text-content-gray">
-            <span>n points</span>{" "}
+            <span>{itemPoint()}</span>{" "}
             <Link className="hover:underline" href={`/user?id=${item.userId}`}>
               by {item.userId}
             </Link>{" "}

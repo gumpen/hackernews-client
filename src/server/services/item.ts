@@ -81,6 +81,16 @@ export class ItemService {
       },
       include: {
         descendants: true,
+        _count: {
+          select: {
+            upvotedUsers: true,
+          },
+        },
+      },
+      orderBy: {
+        upvotedUsers: {
+          _count: "desc",
+        },
       },
     });
 

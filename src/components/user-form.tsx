@@ -1,14 +1,15 @@
 "use client";
 
-import { User } from "@prisma/client";
+// import { User } from "@prisma/client";
+import { AppUser } from "@/lib/definitions";
 import { UpdateUserActionState, updateUser } from "@/app/actions";
 import { getDateComponents } from "@/lib/util";
 import Link from "next/link";
 import { useFormState } from "react-dom";
 
 interface Props {
-  currentUser: User | undefined;
-  displayUser: User;
+  currentUser: AppUser | null;
+  displayUser: AppUser;
 }
 
 export const UserForm = (props: Props) => {

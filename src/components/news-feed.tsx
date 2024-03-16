@@ -1,14 +1,14 @@
-import { ItemWithDescendants, User } from "@/lib/definitions";
+import { Item, ItemWithDescendants, AppUser } from "@/lib/definitions";
 import { NewsItem } from "./news-item";
 import Link from "next/link";
 import { addQueryParameter } from "@/lib/util";
 
 export interface NewsFeedProps {
-  items: ItemWithDescendants[];
+  items: Item[];
   currentPath: string;
   page: number;
   perPage: number;
-  user?: User;
+  user?: AppUser;
 }
 
 const NewsFeed = ({
@@ -18,28 +18,12 @@ const NewsFeed = ({
   perPage,
   user,
 }: NewsFeedProps) => {
-  const userUpvotedIds = (): number[] => {
-    if (user && user.upvotedItems) {
-      return user.upvotedItems.map((relation) => relation.itemId);
-    } else {
-      return [];
-    }
-  };
-
-  const userFavoritedItemIds = () => {
-    if (user && user.favoriteItems) {
-      return user.favoriteItems.map((relation) => relation.itemId);
-    } else {
-      return [];
-    }
-  };
-
   return (
     <table>
       <tbody>
         {items.map((item, i) => {
-          const voted = userUpvotedIds().includes(item.id);
-          const favorited = userFavoritedItemIds().includes(item.id);
+          const voted = user?.upvotedItems.includes(item.id) || false;
+          const favorited = user?.favoriteItems.includes(item.id) || false;
           return (
             <NewsItem
               item={item}

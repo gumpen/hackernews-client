@@ -8,13 +8,13 @@ export const originalGetCurrentUser = async () => {
   const cookieStore = cookies();
   const userString = cookieStore.get("user");
   if (!userString) {
-    return undefined;
+    return null;
   }
   const split = userString.value.split(":");
   const username = split[0];
   const token = split[1];
   if (!username || !token) {
-    return undefined;
+    return null;
   }
 
   const user = await userService.getUserByToken(username, token);

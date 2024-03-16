@@ -37,17 +37,10 @@ export default async function UpvotedPage({
     notFound();
   }
 
-  const withItemIds = await userService.getUserWithUpvotedAndFavoriteIds(
-    currentUser.id
-  );
-  if (!withItemIds) {
-    redirect("/login");
-  }
-
   if (commentFlagParseResult.data && commentFlagParseResult.data === "t") {
     // commentsタブの表示
     const items = await itemService.getUpvotedCommentsByUserId(currentUser.id);
-    return <CommentFeed items={items} user={withItemIds}></CommentFeed>;
+    return <CommentFeed items={items} user={currentUser}></CommentFeed>;
   } else {
     // submissionsタブの表示
     const items = await itemService.getUpvotedSubmissionsByUserId(
@@ -58,7 +51,7 @@ export default async function UpvotedPage({
     return (
       <NewsFeed
         items={items}
-        user={withItemIds}
+        user={currentUser}
         page={1}
         perPage={ITEM_NUM_PER_PAGE}
         currentPath={"/upvoted"}

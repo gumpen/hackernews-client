@@ -5,7 +5,7 @@ import { toHostname, convertNumberToTimeAgo } from "@/lib/util";
 import { PostCommentActionState, postComment } from "@/app/actions";
 import { useRef, FormEvent, useState } from "react";
 import { useFormState } from "react-dom";
-import { ItemWithDescendants, User } from "@/lib/definitions";
+import { ItemWithDescendants, AppUser } from "@/lib/definitions";
 import { UpvoteButton } from "./upvote-button";
 import { UnvoteTextButton } from "./unvote-text-button";
 import { CommentInputForm } from "./comment-input-form";
@@ -13,29 +13,15 @@ import { FavoriteTextButton } from "./favorite-text-button";
 
 interface Props {
   item: ItemWithDescendants;
-  user?: User | null;
+  user?: AppUser | null;
 }
 
 export const ItemDetail = ({ item, user }: Props) => {
-  const userUpvotedItemIds = () => {
-    if (user && user.upvotedItems) {
-      return user.upvotedItems.map((relation) => relation.itemId);
-    } else {
-      return [];
-    }
-  };
-
-  const userFavoritedItemIds = () => {
-    if (user && user.favoriteItems) {
-      return user.favoriteItems.map((relation) => relation.itemId);
-    } else {
-      return [];
-    }
-  };
-
-  const [voted, setVoted] = useState(userUpvotedItemIds().includes(item.id));
+  const [voted, setVoted] = useState(
+    user?.upvotedItems.includes(item.id) || false
+  );
   const [favorited, setFavorited] = useState(
-    userFavoritedItemIds().includes(item.id)
+    user?.favoriteItems.includes(item.id) || false
   );
   const ref = useRef<HTMLFormElement>(null);
 

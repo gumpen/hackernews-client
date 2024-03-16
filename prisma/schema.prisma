@@ -17,8 +17,6 @@ model User {
   id             String             @id
   about          String?            @default("")
   created        DateTime           @default(now())
-  karma          Int                @default(1)
-  submitted      Int[]
   email          String?
   passwordSalt   String
   hashedPassword String

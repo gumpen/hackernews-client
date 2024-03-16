@@ -14,9 +14,6 @@ export default async function FavoritesPage({
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
   const currentUser = await getCurrentUser();
-  //   if (!currentUser) {
-  //     redirect("/login");
-  //   }
 
   const userIdSchema = z.string().min(1);
   const userIdParseResult = userIdSchema.safeParse(searchParams["id"]);
@@ -28,19 +25,6 @@ export default async function FavoritesPage({
     notFound();
   }
 
-  // let displayUserId: string | undefined;
-  // if (
-  //   userIdParseResult.data &&
-  //   currentUser &&
-  //   currentUser.id === userIdParseResult.data
-  // ) {
-  //   displayUserId = currentUser.id;
-  // } else {
-  //   displayUserId = userIdParseResult.data;
-  // }
-  // if (!displayUserId) {
-  //   notFound();
-  // }
   const displayUserId = userIdParseResult.data;
 
   const commentFlagSchema = z.string().min(1).optional();
@@ -49,13 +33,6 @@ export default async function FavoritesPage({
   );
   if (!commentFlagParseResult.success) {
     notFound();
-  }
-
-  let currentUserWithIds: User | null = null;
-  if (currentUser) {
-    currentUserWithIds = await userService.getUserWithUpvotedAndFavoriteIds(
-      currentUser.id
-    );
   }
 
   const renderTabSwitch = () => {
@@ -75,8 +52,8 @@ export default async function FavoritesPage({
     const props: CommentFeedProps = {
       items: items,
     };
-    if (currentUserWithIds) {
-      props.user = currentUserWithIds;
+    if (currentUser) {
+      props.user = currentUser;
     }
 
     return (
@@ -96,8 +73,8 @@ export default async function FavoritesPage({
       perPage: ITEM_NUM_PER_PAGE,
       currentPath: "/favorite",
     };
-    if (currentUserWithIds) {
-      props.user = currentUserWithIds;
+    if (currentUser) {
+      props.user = currentUser;
     }
 
     // TODO: pagination対応

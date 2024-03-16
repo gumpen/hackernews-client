@@ -9,36 +9,22 @@ import Link from "next/link";
 import { CommentInputForm } from "./comment-input-form";
 import { UpvoteButton } from "./upvote-button";
 import { UnvoteTextButton } from "./unvote-text-button";
-import { User } from "@/lib/definitions";
+import { AppUser } from "@/lib/definitions";
 import { useState } from "react";
 import { FavoriteTextButton } from "./favorite-text-button";
 
 interface Props {
   item: ItemWithKids;
   ancestorItem: Item;
-  user: User | null;
+  user: AppUser | null;
 }
 
 export const CommentItemDetail = ({ item, ancestorItem, user }: Props) => {
-  const userUpvotedItemIds = () => {
-    if (user && user.upvotedItems) {
-      return user.upvotedItems.map((relation) => relation.itemId);
-    } else {
-      return [];
-    }
-  };
-
-  const userFavoritedItemIds = () => {
-    if (user && user.favoriteItems) {
-      return user.favoriteItems.map((relation) => relation.itemId);
-    } else {
-      return [];
-    }
-  };
-
-  const [voted, setVoted] = useState(userUpvotedItemIds().includes(item.id));
+  const [voted, setVoted] = useState(
+    user?.upvotedItems.includes(item.id) || false
+  );
   const [favorited, setFavorited] = useState(
-    userFavoritedItemIds().includes(item.id)
+    user?.favoriteItems.includes(item.id) || false
   );
 
   const [formState, formDispatch] = useFormState(

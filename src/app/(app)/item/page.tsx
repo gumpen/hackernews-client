@@ -24,9 +24,6 @@ export default async function Item({
   }
 
   const currentUser = await getCurrentUser();
-  const user = currentUser
-    ? await userService.getUserWithUpvotedAndFavoriteIds(currentUser.id)
-    : null;
 
   let focusCommentId: number | undefined = undefined;
   try {
@@ -68,18 +65,18 @@ export default async function Item({
         <CommentItemDetail
           item={item}
           ancestorItem={story}
-          user={user}
+          user={currentUser}
         ></CommentItemDetail>
         <br />
         <br />
         {focusCommentId ? (
           <CommentTree
             item={item}
-            user={user}
+            user={currentUser}
             focus={focusCommentId}
           ></CommentTree>
         ) : (
-          <CommentTree item={item} user={user}></CommentTree>
+          <CommentTree item={item} user={currentUser}></CommentTree>
         )}
       </>
     );
@@ -87,17 +84,17 @@ export default async function Item({
 
   return (
     <>
-      <ItemDetail item={item} user={user}></ItemDetail>
+      <ItemDetail item={item} user={currentUser}></ItemDetail>
       <br />
       <br />
       {focusCommentId ? (
         <CommentTree
           item={item}
-          user={user}
+          user={currentUser}
           focus={focusCommentId}
         ></CommentTree>
       ) : (
-        <CommentTree item={item} user={user}></CommentTree>
+        <CommentTree item={item} user={currentUser}></CommentTree>
       )}
     </>
   );

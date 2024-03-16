@@ -1,40 +1,29 @@
-import { ItemWithAncestor, ItemWithDescendants, User } from "@/lib/definitions";
+import {
+  ItemWithAncestor,
+  ItemWithDescendants,
+  AppUser,
+} from "@/lib/definitions";
 import { CommentItem } from "./comment-item";
 
 export interface CommentFeedProps {
   items: ItemWithAncestor[];
-  user?: User;
+  user?: AppUser;
 }
 
 export const CommentFeed = ({ items, user }: CommentFeedProps) => {
-  const userUpvotedIds = (): number[] => {
-    if (user && user.upvotedItems) {
-      return user.upvotedItems.map((relation) => relation.itemId);
-    } else {
-      return [];
-    }
-  };
-
-  const userFavoritedItemIds = () => {
-    if (user && user.favoriteItems) {
-      return user.favoriteItems.map((relation) => relation.itemId);
-    } else {
-      return [];
-    }
-  };
-
   return (
     <table>
       <tbody>
         {items.map((item, i) => {
-          const voted = userUpvotedIds().includes(item.id);
-          const favorited = userFavoritedItemIds().includes(item.id);
+          const voted = user?.upvotedItems.includes(item.id) || false;
+          const favorited = user?.favoriteItems.includes(item.id) || false;
           return (
             <>
               <CommentItem
                 item={item}
                 userId={user?.id}
                 voted={voted}
+                favorited={favorited}
                 key={item.id}
               ></CommentItem>
               <tr className="h-4"></tr>

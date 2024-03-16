@@ -38,13 +38,11 @@ export default async function ReplyPage({
     redirect(`/item?id=${item.id}`);
   }
 
-  const user = await userService.getUserWithUpvotedIds(currentUser.id);
-
   return (
     <CommentForm
       item={item}
       ancestorItem={ancestorItem}
-      user={user}
+      user={currentUser}
     ></CommentForm>
   );
 }

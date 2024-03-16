@@ -1,11 +1,11 @@
 import { Item } from "@prisma/client";
-import { ItemWithDescendants, ItemWithKids, User } from "@/lib/definitions";
+import { ItemWithDescendants, ItemWithKids, AppUser } from "@/lib/definitions";
 import { CommentRow, CommentRowProps } from "./comment-row";
 
 interface Props {
   item: ItemWithDescendants;
   focus?: number;
-  user?: User | null;
+  user?: AppUser | null;
 }
 
 export const CommentTree = ({ item, focus, user }: Props) => {
@@ -40,9 +40,6 @@ export const CommentTree = ({ item, focus, user }: Props) => {
 
   const buildCommentTreeComponents = (items: ItemWithKids[]): JSX.Element[] => {
     const userId = user ? user.id : undefined;
-    const userUpvotedItemIds = user?.upvotedItems
-      ? user.upvotedItems.map((relation) => relation.itemId)
-      : [];
 
     return items.reduce<JSX.Element[]>((components, item, index, array) => {
       const props: CommentRowProps = {
@@ -54,8 +51,8 @@ export const CommentTree = ({ item, focus, user }: Props) => {
         props.userId = userId;
       }
 
-      if (userUpvotedItemIds) {
-        props.userUpvotedItemIds = userUpvotedItemIds;
+      if (user?.upvotedItems) {
+        props.userUpvotedItemIds = user.upvotedItems;
       }
 
       // prev

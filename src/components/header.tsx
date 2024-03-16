@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import HeaderNav from "./header-nav";
 
 export interface Props {
-  user: { id: string; karma: number } | undefined;
+  user: { id: string; karma: number } | null;
   title?: string;
   isNavVisible?: boolean;
   isAuthVisible?: boolean;
@@ -19,10 +19,6 @@ const Header = ({
   isAuthVisible = true,
   pageNameShowInNav,
 }: Props) => {
-  // const { user } = props;
-
-  // const router = useRouter();
-
   // TODO: to server action
   const onClickLogout = async () => {
     await fetch("/api/logout", {
@@ -30,7 +26,6 @@ const Header = ({
     });
 
     document.cookie = "user=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-    // router.push("/");
   };
 
   return (

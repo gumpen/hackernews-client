@@ -1,6 +1,6 @@
 "use server";
 
-import { User } from "@/lib/definitions";
+import { AppUser } from "@/lib/definitions";
 import { addQueryParameter, splitToken } from "@/lib/util";
 import { userService, itemService } from "@/server/service";
 import { cookies } from "next/headers";
@@ -9,7 +9,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 export interface UpdateUserActionState {
-  user?: User;
+  user?: AppUser;
   success: boolean;
   message?: string;
 }
@@ -315,15 +315,7 @@ export async function upvote(
     };
   }
 
-  const user = await userService.getUserWithUpvotedIds(userId);
-  if (!user) {
-    return {
-      success: false,
-      message: "unauthorized user",
-    };
-  }
-
-  if (user.upvotedItems.map((relation) => relation.itemId).includes(itemId)) {
+  if (currentUser.upvotedItems.includes(itemId)) {
     return {
       success: false,
       message: "already upvoted",
@@ -331,7 +323,7 @@ export async function upvote(
   }
 
   try {
-    await userService.upvoteItem(user.id, itemId);
+    await userService.upvoteItem(currentUser.id, itemId);
     return {
       success: true,
     };
@@ -382,15 +374,7 @@ export async function unvote(
     };
   }
 
-  const user = await userService.getUserWithUpvotedIds(userId);
-  if (!user) {
-    return {
-      success: false,
-      message: "unauthorized user",
-    };
-  }
-
-  if (!user.upvotedItems.map((relation) => relation.itemId).includes(itemId)) {
+  if (!currentUser.upvotedItems.includes(itemId)) {
     return {
       success: false,
       message: "item is not upvoted",
@@ -398,7 +382,7 @@ export async function unvote(
   }
 
   try {
-    await userService.unvoteItem(user.id, itemId);
+    await userService.unvoteItem(currentUser.id, itemId);
     return {
       success: true,
     };
@@ -444,15 +428,7 @@ export async function favorite(
     };
   }
 
-  const user = await userService.getUserWithFavoriteIds(userId);
-  if (!user) {
-    return {
-      success: false,
-      message: "unauthorized user",
-    };
-  }
-
-  if (user.favoriteItems.map((relation) => relation.itemId).includes(itemId)) {
+  if (currentUser.favoriteItems.includes(itemId)) {
     return {
       success: false,
       message: "already favorited",
@@ -460,7 +436,7 @@ export async function favorite(
   }
 
   try {
-    await userService.favoriteItem(user.id, itemId);
+    await userService.favoriteItem(currentUser.id, itemId);
     return {
       success: true,
     };
@@ -506,15 +482,7 @@ export async function unfavorite(
     };
   }
 
-  const user = await userService.getUserWithFavoriteIds(userId);
-  if (!user) {
-    return {
-      success: false,
-      message: "unauthorized user",
-    };
-  }
-
-  if (!user.favoriteItems.map((relation) => relation.itemId).includes(itemId)) {
+  if (!currentUser.favoriteItems.includes(itemId)) {
     return {
       success: false,
       message: "item is not favorited",
@@ -522,7 +490,7 @@ export async function unfavorite(
   }
 
   try {
-    await userService.unfavoriteItem(user.id, itemId);
+    await userService.unfavoriteItem(currentUser.id, itemId);
     return {
       success: true,
     };

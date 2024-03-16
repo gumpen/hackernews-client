@@ -3,10 +3,24 @@ import {
   verifyPassword,
   generateSessionToken,
 } from "../../lib/auth";
-import { PrismaClient, User } from "@prisma/client";
+import { PrismaClient, User as PrismaUser, Prisma } from "@prisma/client";
+import { AppUser } from "@/lib/definitions";
+
+interface PrismaUserWithRelations extends PrismaUser {
+  items: {
+    id: number;
+    type: string;
+  }[];
+  upvotedItems: {
+    itemId: number;
+  }[];
+  favoriteItems: {
+    itemId: number;
+  }[];
+}
 
 export type UpdateUserProps = Partial<
-  Omit<User, "id" | "created" | "passwordSalt" | "hashedPassword">
+  Omit<PrismaUser, "id" | "created" | "passwordSalt" | "hashedPassword">
 >;
 
 export class UserService {
@@ -16,57 +30,35 @@ export class UserService {
     this.db = db;
   }
 
+  mapToAppUser(dbUser: PrismaUserWithRelations): AppUser {
+    const user: AppUser = {
+      id: dbUser.id,
+      about: dbUser.about || "",
+      created: dbUser.created,
+      submitted: dbUser.items.map((item) => item.id),
+      email: dbUser.email || "",
+      upvotedItems: dbUser.upvotedItems.map((relation) => relation.itemId),
+      favoriteItems: dbUser.favoriteItems.map((relation) => relation.itemId),
+      karma: dbUser.items.reduce((count, item) => {
+        return count + (item.type === "story" ? 5 : 1);
+      }, 1),
+    };
+
+    return user;
+  }
+
   async getUser(id: string) {
-    // return this.db.getUser(id);
-    const user = await this.db.user.findUnique({
-      where: {
-        id: id,
-      },
-    });
-
-    return user;
-  }
-
-  async getUserWithUpvotedIds(id: string) {
-    const user = await this.db.user.findUnique({
+    const dbUser = await this.db.user.findUnique({
       where: {
         id: id,
       },
       include: {
-        upvotedItems: {
+        items: {
           select: {
-            itemId: true,
+            id: true,
+            type: true,
           },
         },
-      },
-    });
-
-    return user;
-  }
-
-  async getUserWithFavoriteIds(id: string) {
-    const user = await this.db.user.findUnique({
-      where: {
-        id: id,
-      },
-      include: {
-        favoriteItems: {
-          select: {
-            itemId: true,
-          },
-        },
-      },
-    });
-
-    return user;
-  }
-
-  async getUserWithUpvotedAndFavoriteIds(id: string) {
-    const user = await this.db.user.findUnique({
-      where: {
-        id: id,
-      },
-      include: {
         upvotedItems: {
           select: {
             itemId: true,
@@ -79,6 +71,12 @@ export class UserService {
         },
       },
     });
+
+    if (!dbUser) {
+      return null;
+    }
+
+    const user = this.mapToAppUser(dbUser);
 
     return user;
   }
@@ -168,7 +166,7 @@ export class UserService {
     return this.createSession(user.id);
   }
 
-  async getUserByToken(id: string, token: string) {
+  async getUserByToken(id: string, token: string): Promise<AppUser | null> {
     const session = await this.db.userSession.findFirst({
       where: {
         AND: [
@@ -183,14 +181,36 @@ export class UserService {
         ],
       },
       include: {
-        user: true,
+        user: {
+          include: {
+            items: {
+              select: {
+                id: true,
+                type: true,
+              },
+            },
+            upvotedItems: {
+              select: {
+                itemId: true,
+              },
+            },
+            favoriteItems: {
+              select: {
+                itemId: true,
+              },
+            },
+          },
+        },
       },
     });
     if (!session) {
-      return undefined;
+      return null;
     }
 
-    return session.user;
+    const dbUser = session.user;
+    const user = this.mapToAppUser(dbUser);
+
+    return user;
   }
 
   async logout(id: string, token: string) {
@@ -225,14 +245,34 @@ export class UserService {
       return acc;
     }, {} as UpdateUserProps);
 
-    const updatedUser = await this.db.user.update({
+    const updatedDbUser = await this.db.user.update({
       where: {
         id: user.id,
       },
       data: data,
+      include: {
+        items: {
+          select: {
+            id: true,
+            type: true,
+          },
+        },
+        upvotedItems: {
+          select: {
+            itemId: true,
+          },
+        },
+        favoriteItems: {
+          select: {
+            itemId: true,
+          },
+        },
+      },
     });
 
-    return updatedUser;
+    const resUser = this.mapToAppUser(updatedDbUser);
+
+    return resUser;
   }
 
   async upvoteItem(userId: string, itemId: number) {

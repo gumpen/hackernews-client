@@ -6,7 +6,7 @@ import { useFormState } from "react-dom";
 import { convertNumberToTimeAgo } from "@/lib/util";
 import Link from "next/link";
 import { CommentInputForm } from "./comment-input-form";
-import { User } from "@/lib/definitions";
+import { AppUser } from "@/lib/definitions";
 import { useState } from "react";
 import { UpvoteButton } from "./upvote-button";
 import { UnvoteTextButton } from "./unvote-text-button";
@@ -14,19 +14,13 @@ import { UnvoteTextButton } from "./unvote-text-button";
 interface Props {
   item: Item;
   ancestorItem: Item;
-  user: User | null;
+  user: AppUser | null;
 }
 
 export const CommentForm = ({ item, ancestorItem, user }: Props) => {
-  const userUpvotedItemIds = () => {
-    if (user && user.upvotedItems) {
-      return user.upvotedItems.map((relation) => relation.itemId);
-    } else {
-      return [];
-    }
-  };
-
-  const [voted, setVoted] = useState(userUpvotedItemIds().includes(item.id));
+  const [voted, setVoted] = useState(
+    user?.upvotedItems.includes(item.id) || false
+  );
 
   const [formState, formDispatch] = useFormState(
     replyComment,
