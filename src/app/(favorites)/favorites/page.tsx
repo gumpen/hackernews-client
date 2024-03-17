@@ -71,7 +71,6 @@ export default async function FavoritesPage({
       items: items,
       page: 1,
       perPage: ITEM_NUM_PER_PAGE,
-      currentPath: "/favorite",
     };
     if (currentUser) {
       props.user = currentUser;

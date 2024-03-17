@@ -21,6 +21,7 @@ export interface CommentRowProps {
   hidden?: boolean;
   userId?: string;
   userUpvotedItemIds?: number[];
+  ancestorItem?: { id: number; title: string };
 }
 
 export const CommentRow = ({
@@ -34,6 +35,7 @@ export const CommentRow = ({
   hidden = false,
   userId,
   userUpvotedItemIds,
+  ancestorItem,
 }: CommentRowProps) => {
   const [collapse, setCollapse] = useState(false);
   const [voted, setVoted] = useState(
@@ -269,6 +271,20 @@ export const CommentRow = ({
                           ? `[${countDescendants(item.kids) + 1} more]`
                           : "[-]"}
                       </a>
+                      {ancestorItem ? (
+                        <>
+                          {" | "}
+                          <span>on: </span>
+                          <Link
+                            className="hover:underline"
+                            href={`/item?id=${ancestorItem.id}`}
+                          >
+                            {ancestorItem.title}
+                          </Link>
+                        </>
+                      ) : (
+                        <></>
+                      )}
                     </span>
                   </div>
                   <div className="h-1"></div>

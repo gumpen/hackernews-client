@@ -53,6 +53,7 @@ model Item {
   title          String?
   upvotedUsers   UpvotesOnItems[]
   favoritedUsers FavoritesOnItems[]
+  isThreadRoot   Boolean            @default(false)
 }
 
 model UpvotesOnItems {

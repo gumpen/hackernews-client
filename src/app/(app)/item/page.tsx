@@ -71,12 +71,17 @@ export default async function Item({
         <br />
         {focusCommentId ? (
           <CommentTree
-            item={item}
+            items={item.descendants}
+            story={{ id: item.id, title: item.title }}
             user={currentUser}
             focus={focusCommentId}
           ></CommentTree>
         ) : (
-          <CommentTree item={item} user={currentUser}></CommentTree>
+          <CommentTree
+            items={item.descendants}
+            story={{ id: item.id, title: item.title }}
+            user={currentUser}
+          ></CommentTree>
         )}
       </>
     );
@@ -89,12 +94,17 @@ export default async function Item({
       <br />
       {focusCommentId ? (
         <CommentTree
-          item={item}
+          items={item.descendants}
+          story={{ id: item.id, title: item.title }}
           user={currentUser}
           focus={focusCommentId}
         ></CommentTree>
       ) : (
-        <CommentTree item={item} user={currentUser}></CommentTree>
+        <CommentTree
+          items={item.descendants}
+          story={{ id: item.id, title: item.title }}
+          user={currentUser}
+        ></CommentTree>
       )}
     </>
   );

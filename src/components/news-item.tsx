@@ -62,6 +62,11 @@ export const NewsItem = ({
               {item.title}
             </a>
           </span>
+          {item.url ? (
+            <span className="text-2xs text-content-gray">{` (${toHostname(item.url)})`}</span>
+          ) : (
+            <></>
+          )}
           <span className="text-2xs text-content-gray">{` (${toHostname(item.url ?? "")})`}</span>
         </td>
       </tr>

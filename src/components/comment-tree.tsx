@@ -3,28 +3,34 @@ import { ItemWithDescendants, ItemWithKids, AppUser } from "@/lib/definitions";
 import { CommentRow, CommentRowProps } from "./comment-row";
 
 interface Props {
-  item: ItemWithDescendants;
+  story: { id: number; title: string | null };
+  items: Item[];
+  rootCommentId?: number;
   focus?: number;
   user?: AppUser | null;
 }
 
-export const CommentTree = ({ item, focus, user }: Props) => {
-  const buildDescendantsTree = (
-    rootItem: ItemWithDescendants
-  ): ItemWithKids[] => {
-    const allDecendants = rootItem.descendants;
-    if (!allDecendants) {
-      return [];
-    }
+export const CommentTree = ({
+  story,
+  items,
+  rootCommentId,
+  focus,
+  user,
+}: Props) => {
+  const buildDescendantsTree = (): ItemWithKids[] => {
+    // const allDecendants = rootItem.descendants;
+    // if (!allDecendants) {
+    //   return [];
+    // }
 
     const tempStorage = new Map<number, Item & { kids?: Item[] }>();
-    allDecendants.forEach((item) => {
+    items.forEach((item) => {
       tempStorage.set(item.id, { ...item, kids: [] });
     });
 
     tempStorage.forEach((value, key) => {
       if (value.parentId) {
-        if (value.parentId !== rootItem.id) {
+        if (value.parentId !== story.id) {
           const parent = tempStorage.get(value.parentId);
           if (parent) {
             parent.kids?.push(value);
@@ -33,8 +39,14 @@ export const CommentTree = ({ item, focus, user }: Props) => {
       }
     });
 
+    if (rootCommentId) {
+      return Array.from(tempStorage.values()).filter(
+        (item) => item.id === rootCommentId
+      );
+    }
+
     return Array.from(tempStorage.values()).filter(
-      (item) => item.parentId === rootItem.id
+      (item) => item.parentId === story.id
     );
   };
 
@@ -75,13 +87,20 @@ export const CommentTree = ({ item, focus, user }: Props) => {
         }
       }
 
+      if (rootCommentId && story.title) {
+        props.ancestorItem = {
+          id: story.id,
+          title: story.title,
+        };
+      }
+
       const currentComponent = <CommentRow {...props} key={item.id} />;
 
       return components.concat(currentComponent);
     }, []);
   };
 
-  const itemTree = buildDescendantsTree(item);
+  const itemTree = buildDescendantsTree();
 
   return (
     <table className="border-separate">

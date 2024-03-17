@@ -25,16 +25,10 @@ export default async function Home({
         user={currentUser}
         page={pageNumber}
         perPage={ITEM_NUM_PER_PAGE}
-        currentPath={"/"}
       />
     );
   }
   return (
-    <NewsFeed
-      items={stories}
-      page={pageNumber}
-      perPage={ITEM_NUM_PER_PAGE}
-      currentPath={"/"}
-    />
+    <NewsFeed items={stories} page={pageNumber} perPage={ITEM_NUM_PER_PAGE} />
   );
 }

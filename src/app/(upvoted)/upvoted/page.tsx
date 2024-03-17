@@ -54,7 +54,6 @@ export default async function UpvotedPage({
         user={currentUser}
         page={1}
         perPage={ITEM_NUM_PER_PAGE}
-        currentPath={"/upvoted"}
       />
     );
   }

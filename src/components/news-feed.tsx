@@ -2,22 +2,16 @@ import { Item, ItemWithDescendants, AppUser } from "@/lib/definitions";
 import { NewsItem } from "./news-item";
 import Link from "next/link";
 import { addQueryParameter } from "@/lib/util";
+import { MoreTextButton } from "./more-text-button";
 
 export interface NewsFeedProps {
   items: Item[];
-  currentPath: string;
   page: number;
   perPage: number;
   user?: AppUser;
 }
 
-const NewsFeed = ({
-  items,
-  currentPath,
-  page,
-  perPage,
-  user,
-}: NewsFeedProps) => {
+const NewsFeed = ({ items, page, perPage, user }: NewsFeedProps) => {
   return (
     <table>
       <tbody>
@@ -38,12 +32,8 @@ const NewsFeed = ({
         <tr className="h-3"></tr>
         <tr>
           <td colSpan={2}></td>
-          <td className="text-sm text-content-gray">
-            <Link
-              href={addQueryParameter(currentPath, "p", (page + 1).toString())}
-            >
-              More
-            </Link>
+          <td>
+            <MoreTextButton></MoreTextButton>
           </td>
         </tr>
       </tbody>

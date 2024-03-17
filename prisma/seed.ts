@@ -35,9 +35,16 @@ async function createItems(
   parentId: number | null = null,
   ancestorId: number | null = null
 ) {
-  console.log(parentId);
-  console.log(ancestorId);
   items.map(async (item) => {
+    let isThreadRoot = false;
+    if (parentId && ancestorId) {
+      isThreadRoot = await isThreadRootComment({
+        userId: item.userId,
+        parentId,
+        ancestorId,
+      });
+    }
+
     const resItem = await prisma.item.create({
       data: {
         type: item.type,
@@ -47,6 +54,7 @@ async function createItems(
         title: item.title,
         parentId: parentId,
         ancestorId: ancestorId,
+        isThreadRoot: isThreadRoot,
       },
     });
     // console.log(resItem.id);
@@ -58,6 +66,56 @@ async function createItems(
       );
     }
   });
+}
+
+async function isThreadRootComment({
+  userId,
+  parentId,
+  ancestorId,
+}: {
+  userId: string;
+  parentId: number;
+  ancestorId: number;
+}) {
+  const story = await prisma.item.findUnique({
+    where: {
+      id: ancestorId,
+    },
+    include: {
+      descendants: {
+        select: {
+          id: true,
+          userId: true,
+          parentId: true,
+        },
+      },
+    },
+  });
+  if (!story) {
+    throw new Error("invalid ancestorId");
+  }
+
+  let parent = story.descendants.find((item) => item.id === parentId);
+  if (!parent) {
+    return true;
+  }
+
+  while (parent.parentId !== story.id) {
+    if (parent.userId === userId) {
+      return false;
+    }
+
+    const newParent = story.descendants.find(
+      (item) => item.id === parent?.parentId
+    );
+    if (!newParent) {
+      return true;
+    }
+
+    parent = newParent;
+  }
+
+  return true;
 }
 
 async function main() {
