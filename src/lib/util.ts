@@ -80,3 +80,11 @@ export const addQueryParameter = (
 
   return fullUrl.href.replace(baseUrl, "");
 };
+
+export const shouldShowMore = (
+  totalCount: number,
+  pageNumber: number,
+  perPage: number
+) => {
+  return totalCount / (pageNumber * perPage) > 1;
+};

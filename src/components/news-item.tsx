@@ -58,7 +58,10 @@ export const NewsItem = ({
         </td>
         <td>
           <span className="text-sm">
-            <a href={item.url ?? ""} target="_blank">
+            <a
+              href={item.url ? item.url : `/item?id=${item.id}`}
+              target="_blank"
+            >
               {item.title}
             </a>
           </span>
@@ -67,7 +70,6 @@ export const NewsItem = ({
           ) : (
             <></>
           )}
-          <span className="text-2xs text-content-gray">{` (${toHostname(item.url ?? "")})`}</span>
         </td>
       </tr>
       <tr className="h-1" key={`${item.id}-detail-row`}>

@@ -9,9 +9,16 @@ export interface NewsFeedProps {
   page: number;
   perPage: number;
   user?: AppUser;
+  showMore?: boolean;
 }
 
-const NewsFeed = ({ items, page, perPage, user }: NewsFeedProps) => {
+const NewsFeed = ({
+  items,
+  page,
+  perPage,
+  user,
+  showMore = false,
+}: NewsFeedProps) => {
   return (
     <table>
       <tbody>
@@ -32,9 +39,7 @@ const NewsFeed = ({ items, page, perPage, user }: NewsFeedProps) => {
         <tr className="h-3"></tr>
         <tr>
           <td colSpan={2}></td>
-          <td>
-            <MoreTextButton></MoreTextButton>
-          </td>
+          <td>{showMore ? <MoreTextButton></MoreTextButton> : <></>}</td>
         </tr>
       </tbody>
     </table>

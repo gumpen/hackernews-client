@@ -131,7 +131,21 @@ export class ItemService {
       take: perPage,
       skip: (page - 1) * perPage,
       where: {
-        type: "story",
+        AND: [
+          {
+            type: "story",
+          },
+          {
+            url: {
+              not: null,
+            },
+          },
+          {
+            url: {
+              not: "",
+            },
+          },
+        ],
       },
       include: {
         descendants: true,
@@ -402,5 +416,50 @@ export class ItemService {
     });
 
     return;
+  };
+
+  getAskStories = async (page: number, perPage: number) => {
+    const where: Prisma.ItemWhereInput = {
+      AND: [
+        {
+          type: "story",
+        },
+        {
+          OR: [
+            {
+              url: null,
+            },
+            {
+              url: "",
+            },
+          ],
+        },
+      ],
+    };
+
+    const items = await this.db.item.findMany({
+      take: perPage,
+      skip: (page - 1) * perPage,
+      where: where,
+      include: {
+        descendants: true,
+        _count: {
+          select: {
+            upvotedUsers: true,
+          },
+        },
+      },
+      orderBy: {
+        upvotedUsers: {
+          _count: "desc",
+        },
+      },
+    });
+
+    const count = await this.db.item.count({
+      where: where,
+    });
+
+    return { items, totalCount: count };
   };
 }
