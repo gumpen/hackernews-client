@@ -127,26 +127,28 @@ export class ItemService {
   };
 
   getStories = async (page: number, perPage: number) => {
+    const where: Prisma.ItemWhereInput = {
+      AND: [
+        {
+          type: "story",
+        },
+        {
+          url: {
+            not: null,
+          },
+        },
+        {
+          url: {
+            not: "",
+          },
+        },
+      ],
+    };
+
     const items = await this.db.item.findMany({
       take: perPage,
       skip: (page - 1) * perPage,
-      where: {
-        AND: [
-          {
-            type: "story",
-          },
-          {
-            url: {
-              not: null,
-            },
-          },
-          {
-            url: {
-              not: "",
-            },
-          },
-        ],
-      },
+      where: where,
       include: {
         descendants: true,
         _count: {
@@ -162,186 +164,192 @@ export class ItemService {
       },
     });
 
-    return items;
-  };
-
-  getUpvotedSubmissionsByUserId = async (userId: string) => {
-    const items = await this.db.item.findMany({
-      where: {
-        AND: [
-          { type: "story" },
-          { upvotedUsers: { some: { userId: userId } } },
-        ],
-      },
-      include: {
-        descendants: true,
-      },
+    const count = await this.db.item.count({
+      where: where,
     });
 
-    return items;
+    return { stories: items, totalCount: count };
   };
 
-  getUpvotedCommentsByUserId = async (userId: string) => {
-    const items = await this.db.item.findMany({
-      where: {
-        AND: [
-          { type: "comment" },
-          { upvotedUsers: { some: { userId: userId } } },
-        ],
-      },
-      include: {
-        ancestor: true,
-      },
-    });
-
-    return items;
-  };
-
-  getFavoritedSubmissionsByUserId = async (userId: string) => {
-    const items = await this.db.item.findMany({
-      where: {
-        AND: [
-          { type: "story" },
-          { favoritedUsers: { some: { userId: userId } } },
-        ],
-      },
-      include: {
-        descendants: true,
-      },
-    });
-
-    return items;
-  };
-
-  getFavoritedCommentsByUserId = async (userId: string) => {
-    const items = await this.db.item.findMany({
-      where: {
-        AND: [
-          { type: "comment" },
-          { favoritedUsers: { some: { userId: userId } } },
-        ],
-      },
-      include: {
-        ancestor: true,
-      },
-    });
-
-    return items;
-  };
-
-  getUserComments = async (userId: string) => {
-    const rootComments = await this.db.item.findMany({
-      take: 10, // TODO: fix
-      where: {
-        AND: [
-          {
-            type: "comment",
+  getUpvotedSubmissionsByUserId = async (
+    userId: string,
+    page: number,
+    perPage: number
+  ) => {
+    const where: Prisma.UpvotesOnItemsWhereInput = {
+      AND: [
+        {
+          userId: userId,
+        },
+        {
+          item: {
+            type: "story",
           },
-          {
-            userId: userId,
+        },
+      ],
+    };
+
+    const relations = await this.db.upvotesOnItems.findMany({
+      take: perPage,
+      skip: (page - 1) * perPage,
+      where: where,
+      include: {
+        item: {
+          include: {
+            ancestor: true,
           },
-        ],
+        },
       },
       orderBy: {
         created: "desc",
       },
     });
 
-    const ancestorIds = rootComments.reduce((acc, v) => {
-      if (v.ancestorId) {
-        acc.push(v.ancestorId);
-      }
-      return acc;
-    }, [] as number[]);
+    const items = relations.map((r) => r.item);
+    const count = await this.db.upvotesOnItems.count({ where: where });
 
-    // const rootCommentIds = rootComments.map((comment) => comment.id);
+    return { items, totalCount: count };
+  };
 
-    const descendantComments = await this.db.item.findMany({
-      where: {
-        AND: [
-          {
+  getUpvotedCommentsByUserId = async (
+    userId: string,
+    page: number,
+    perPage: number
+  ) => {
+    const where: Prisma.UpvotesOnItemsWhereInput = {
+      AND: [
+        {
+          userId: userId,
+        },
+        {
+          item: {
             type: "comment",
           },
-          {
-            userId: userId,
+        },
+      ],
+    };
+
+    const relations = await this.db.upvotesOnItems.findMany({
+      take: perPage,
+      skip: (page - 1) * perPage,
+      where: where,
+      include: {
+        item: {
+          include: {
+            ancestor: true,
           },
-          {
-            ancestorId: {
-              in: ancestorIds,
-            },
-          },
-        ],
+        },
+      },
+      orderBy: {
+        created: "desc",
       },
     });
 
-    const initialValue = ancestorIds.reduce(
-      (acc, v) => {
-        acc[v] = [];
-        return acc;
+    const items = relations.map((r) => r.item);
+    const count = await this.db.upvotesOnItems.count({ where: where });
+
+    return { items, totalCount: count };
+  };
+
+  getFavoritedSubmissionsByUserId = async (
+    userId: string,
+    page: number,
+    perPage: number
+  ) => {
+    const where: Prisma.FavoritesOnItemsWhereInput = {
+      AND: [
+        {
+          userId: userId,
+        },
+        {
+          item: {
+            type: "story",
+          },
+        },
+      ],
+    };
+
+    const relations = await this.db.favoritesOnItems.findMany({
+      take: perPage,
+      skip: (page - 1) * perPage,
+      where: where,
+      include: {
+        item: {
+          include: {
+            descendants: true,
+          },
+        },
       },
-      {} as Record<number, Item[]>
-    );
+      orderBy: {
+        created: "desc",
+      },
+    });
 
-    const groupdComments = descendantComments.reduce((acc, v) => {
-      if (v.ancestorId) {
-        acc[v.ancestorId]?.push(v);
-      }
-      return acc;
-    }, initialValue);
+    const items = relations.map((r) => r.item);
+    const count = await this.db.favoritesOnItems.count({ where: where });
 
-    // type ReturnItem = (typeof rootComments)[number] & {
-    //   descendants: (typeof descendantComments)[number][];
-    // };
-    // const res: ReturnItem[] = [];
+    return { items, totalCount: count };
+  };
 
-    // for (const id in groupdComments) {
-    //   const value = groupdComments[id];
-    //   const rootComment = rootComments.find(
-    //     (c) => c.ancestorId && c.ancestorId.toString() === id
-    //   );
-    //   if (rootComment && value) {
-    //     res.push({
-    //       ...rootComment,
-    //       descendants: value,
-    //     });
-    //   }
-    // }
+  getFavoritedCommentsByUserId = async (
+    userId: string,
+    page: number,
+    perPage: number
+  ) => {
+    const where: Prisma.FavoritesOnItemsWhereInput = {
+      AND: [
+        {
+          userId: userId,
+        },
+        {
+          item: {
+            type: "comment",
+          },
+        },
+      ],
+    };
 
-    const res = new Map<number, typeof descendantComments>();
+    const relations = await this.db.favoritesOnItems.findMany({
+      take: perPage,
+      skip: (page - 1) * perPage,
+      where: where,
+      include: {
+        item: {
+          include: {
+            ancestor: true,
+          },
+        },
+      },
+      orderBy: {
+        created: "desc",
+      },
+    });
 
-    for (const id in groupdComments) {
-      const value = groupdComments[id];
-      const rootComment = rootComments.find(
-        (c) => c.ancestorId && c.ancestorId.toString() === id
-      );
+    const items = relations.map((r) => r.item);
+    const count = await this.db.favoritesOnItems.count({ where: where });
 
-      if (rootComment && value) {
-        res.set(rootComment.id, value);
-      }
-    }
-
-    return res;
+    return { items, totalCount: count };
   };
 
   getUserThreads = async (userId: string, page: number, perPage: number) => {
-    console.log("take:", perPage);
-    console.log("skip:", (page - 1) * perPage);
+    const where: Prisma.ItemWhereInput = {
+      AND: [
+        {
+          type: "comment",
+        },
+        {
+          userId: userId,
+        },
+        {
+          isThreadRoot: true,
+        },
+      ],
+    };
+
     const threadRootComments = await this.db.item.findMany({
       take: perPage,
       skip: (page - 1) * perPage,
-      where: {
-        AND: [
-          {
-            type: "comment",
-          },
-          {
-            userId: userId,
-          },
-          {
-            isThreadRoot: true,
-          },
-        ],
-      },
+      where: where,
       orderBy: [
         {
           created: "desc",
@@ -349,6 +357,8 @@ export class ItemService {
         { id: "desc" },
       ],
     });
+
+    const totalCount = await this.db.item.count({ where: where });
 
     const ancestorIds = threadRootComments.reduce((acc, v) => {
       if (v.ancestorId) {
@@ -396,7 +406,7 @@ export class ItemService {
     // その要素のidをparentIdとする要素を全取得してparentIdが取れなくなるまで再帰
     // 都度とれたitemは配列に格納
 
-    return threads;
+    return { threads, totalCount };
   };
 
   private getCommentsInThread = (

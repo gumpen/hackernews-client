@@ -7,6 +7,7 @@ import { CommentFeed, CommentFeedProps } from "@/components/comment-feed";
 import { ITEM_NUM_PER_PAGE } from "@/lib/constants";
 import { User } from "@/lib/definitions";
 import Link from "next/link";
+import { getPageQuery, shouldShowMore } from "@/lib/util";
 
 export default async function FavoritesPage({
   searchParams,
@@ -35,6 +36,8 @@ export default async function FavoritesPage({
     notFound();
   }
 
+  const pageNumber = getPageQuery(searchParams);
+
   const renderTabSwitch = () => {
     return (
       <div className="ml-9 mt-2 mb-3 text-sm text-content-gray">
@@ -47,10 +50,16 @@ export default async function FavoritesPage({
 
   if (commentFlagParseResult.data && commentFlagParseResult.data === "t") {
     // commentsタブの表示
-    const items = await itemService.getFavoritedCommentsByUserId(displayUserId);
+    const { items, totalCount } =
+      await itemService.getFavoritedCommentsByUserId(
+        displayUserId,
+        pageNumber,
+        ITEM_NUM_PER_PAGE
+      );
 
     const props: CommentFeedProps = {
       items: items,
+      showMore: shouldShowMore(totalCount, pageNumber, ITEM_NUM_PER_PAGE),
     };
     if (currentUser) {
       props.user = currentUser;
@@ -64,19 +73,23 @@ export default async function FavoritesPage({
     );
   } else {
     // submissionsタブの表示
-    const items =
-      await itemService.getFavoritedSubmissionsByUserId(displayUserId);
+    const { items, totalCount } =
+      await itemService.getFavoritedSubmissionsByUserId(
+        displayUserId,
+        pageNumber,
+        ITEM_NUM_PER_PAGE
+      );
 
     const props: NewsFeedProps = {
       items: items,
-      page: 1,
+      page: pageNumber,
       perPage: ITEM_NUM_PER_PAGE,
+      showMore: shouldShowMore(totalCount, pageNumber, ITEM_NUM_PER_PAGE),
     };
     if (currentUser) {
       props.user = currentUser;
     }
 
-    // TODO: pagination対応
     return (
       <>
         {renderTabSwitch()}

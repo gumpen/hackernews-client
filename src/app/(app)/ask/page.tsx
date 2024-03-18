@@ -2,20 +2,14 @@ import { getCurrentUser } from "@/lib/api";
 import NewsFeed, { NewsFeedProps } from "@/components/news-feed";
 import { ITEM_NUM_PER_PAGE } from "@/lib/constants";
 import { itemService } from "@/server/service";
-import { z } from "zod";
-import { shouldShowMore } from "@/lib/util";
+import { shouldShowMore, getPageQuery } from "@/lib/util";
 
 export default async function AskPage({
   searchParams,
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  const pageSchema = z.coerce.number().min(1);
-  const parseResult = pageSchema.safeParse(searchParams["p"]);
-  let pageNumber = 1;
-  if (parseResult.success) {
-    pageNumber = parseResult.data;
-  }
+  const pageNumber = getPageQuery(searchParams);
 
   const currentUser = await getCurrentUser();
 
@@ -24,13 +18,11 @@ export default async function AskPage({
     ITEM_NUM_PER_PAGE
   );
 
-  const showMore = shouldShowMore(totalCount, pageNumber, ITEM_NUM_PER_PAGE);
-
   const props: NewsFeedProps = {
     items: items,
     page: pageNumber,
     perPage: ITEM_NUM_PER_PAGE,
-    showMore: showMore,
+    showMore: shouldShowMore(totalCount, pageNumber, ITEM_NUM_PER_PAGE),
   };
   if (currentUser) {
     props.user = currentUser;

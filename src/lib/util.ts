@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 export const convertNumberToTimeAgo = (n: number): string => {
   const now = new Date().getTime();
   const d = now - n;
@@ -87,4 +89,15 @@ export const shouldShowMore = (
   perPage: number
 ) => {
   return totalCount / (pageNumber * perPage) > 1;
+};
+
+export const getPageQuery = (params: {
+  [key: string]: string | string[] | undefined;
+}) => {
+  const pageSchema = z.coerce.number().min(1);
+  const pageSchemaResult = pageSchema.safeParse(params["p"]);
+  if (pageSchemaResult.success) {
+    return pageSchemaResult.data;
+  }
+  return 1;
 };

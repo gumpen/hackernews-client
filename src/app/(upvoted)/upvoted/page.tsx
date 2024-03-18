@@ -5,6 +5,7 @@ import { itemService, userService } from "@/server/service";
 import NewsFeed from "@/components/news-feed";
 import { CommentFeed } from "@/components/comment-feed";
 import { ITEM_NUM_PER_PAGE } from "@/lib/constants";
+import { getPageQuery, shouldShowMore } from "@/lib/util";
 
 export default async function UpvotedPage({
   searchParams,
@@ -37,23 +38,42 @@ export default async function UpvotedPage({
     notFound();
   }
 
+  // page
+  const pageNumber = getPageQuery(searchParams);
+
   if (commentFlagParseResult.data && commentFlagParseResult.data === "t") {
     // commentsタブの表示
-    const items = await itemService.getUpvotedCommentsByUserId(currentUser.id);
-    return <CommentFeed items={items} user={currentUser}></CommentFeed>;
+    const { items, totalCount } = await itemService.getUpvotedCommentsByUserId(
+      currentUser.id,
+      pageNumber,
+      ITEM_NUM_PER_PAGE
+    );
+    const showMore = shouldShowMore(totalCount, pageNumber, ITEM_NUM_PER_PAGE);
+
+    return (
+      <CommentFeed
+        items={items}
+        user={currentUser}
+        showMore={showMore}
+      ></CommentFeed>
+    );
   } else {
     // submissionsタブの表示
-    const items = await itemService.getUpvotedSubmissionsByUserId(
-      currentUser.id
-    );
+    const { items, totalCount } =
+      await itemService.getUpvotedSubmissionsByUserId(
+        currentUser.id,
+        pageNumber,
+        ITEM_NUM_PER_PAGE
+      );
+    const showMore = shouldShowMore(totalCount, pageNumber, ITEM_NUM_PER_PAGE);
 
-    // TODO: pagination対応
     return (
       <NewsFeed
         items={items}
         user={currentUser}
-        page={1}
+        page={pageNumber}
         perPage={ITEM_NUM_PER_PAGE}
+        showMore={showMore}
       />
     );
   }

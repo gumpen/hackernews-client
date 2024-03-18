@@ -4,13 +4,19 @@ import {
   AppUser,
 } from "@/lib/definitions";
 import { CommentItem } from "./comment-item";
+import { MoreTextButton } from "./more-text-button";
 
 export interface CommentFeedProps {
   items: ItemWithAncestor[];
   user?: AppUser;
+  showMore?: boolean;
 }
 
-export const CommentFeed = ({ items, user }: CommentFeedProps) => {
+export const CommentFeed = ({
+  items,
+  user,
+  showMore = false,
+}: CommentFeedProps) => {
   return (
     <table>
       <tbody>
@@ -30,6 +36,10 @@ export const CommentFeed = ({ items, user }: CommentFeedProps) => {
             </>
           );
         })}
+        <tr>
+          <td colSpan={2}></td>
+          <td>{showMore ? <MoreTextButton></MoreTextButton> : <></>}</td>
+        </tr>
       </tbody>
     </table>
   );

@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { z } from "zod";
 import { THREAD_NUM_PER_PAGE } from "@/lib/constants";
 import { MoreTextButton } from "@/components/more-text-button";
+import { getPageQuery, shouldShowMore } from "@/lib/util";
 
 export default async function ThreadsPage({
   searchParams,
@@ -28,18 +29,15 @@ export default async function ThreadsPage({
     notFound();
   }
 
-  const pageSchema = z.coerce.number().min(1);
-  const pageSchemaResult = pageSchema.safeParse(searchParams["p"]);
-  let pageNumber = 1;
-  if (pageSchemaResult.success) {
-    pageNumber = pageSchemaResult.data;
-  }
+  const pageNumber = getPageQuery(searchParams);
 
-  const threads = await itemService.getUserThreads(
+  const { threads, totalCount } = await itemService.getUserThreads(
     displayUserId,
     pageNumber,
     THREAD_NUM_PER_PAGE
   );
+
+  const showMore = shouldShowMore(totalCount, pageNumber, THREAD_NUM_PER_PAGE);
 
   const renderTrees = () => {
     return threads.map(({ story, threadRootCommentId, comments }) => {
@@ -58,9 +56,13 @@ export default async function ThreadsPage({
   return (
     <>
       {renderTrees()}
-      <div className="pl-5">
-        <MoreTextButton></MoreTextButton>
-      </div>
+      {showMore ? (
+        <div className="pl-5">
+          <MoreTextButton></MoreTextButton>
+        </div>
+      ) : (
+        <></>
+      )}
     </>
   );
 }
