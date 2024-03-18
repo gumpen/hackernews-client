@@ -64,7 +64,12 @@ export const CommentItem = ({
               parent
             </Link>
             {" | "}
-            <span>context</span>
+            <Link
+              className="hover:underline"
+              href={`/item?id=${item.ancestorId}&focus=${item.id}`}
+            >
+              context
+            </Link>
             {" | "}
             <FavoriteTextButton
               userId={userId}

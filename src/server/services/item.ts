@@ -126,6 +126,59 @@ export class ItemService {
     return item;
   };
 
+  getNewestStories = async (page: number, perPage: number) => {
+    const where: Prisma.ItemWhereInput = {
+      type: "story",
+    };
+
+    const items = await this.db.item.findMany({
+      take: perPage,
+      skip: (page - 1) * perPage,
+      where: where,
+      include: {
+        descendants: true,
+        _count: {
+          select: {
+            upvotedUsers: true,
+          },
+        },
+      },
+      orderBy: {
+        created: "desc",
+      },
+    });
+
+    const count = await this.db.item.count({
+      where: where,
+    });
+
+    return { stories: items, totalCount: count };
+  };
+
+  getNewestComments = async (page: number, perPage: number) => {
+    const where: Prisma.ItemWhereInput = {
+      type: "comment",
+    };
+
+    const items = await this.db.item.findMany({
+      take: perPage,
+      skip: (page - 1) * perPage,
+      where: where,
+      include: {
+        ancestor: true,
+      },
+      orderBy: {
+        created: "desc",
+      },
+    });
+
+    const count = await this.db.item.count({
+      where: where,
+    });
+
+    return { comments: items, totalCount: count };
+  };
+
   getStories = async (page: number, perPage: number) => {
     const where: Prisma.ItemWhereInput = {
       AND: [
@@ -140,6 +193,13 @@ export class ItemService {
         {
           url: {
             not: "",
+          },
+        },
+        {
+          title: {
+            not: {
+              startsWith: "Show HN:",
+            },
           },
         },
       ],
@@ -443,6 +503,46 @@ export class ItemService {
               url: "",
             },
           ],
+        },
+      ],
+    };
+
+    const items = await this.db.item.findMany({
+      take: perPage,
+      skip: (page - 1) * perPage,
+      where: where,
+      include: {
+        descendants: true,
+        _count: {
+          select: {
+            upvotedUsers: true,
+          },
+        },
+      },
+      orderBy: {
+        upvotedUsers: {
+          _count: "desc",
+        },
+      },
+    });
+
+    const count = await this.db.item.count({
+      where: where,
+    });
+
+    return { items, totalCount: count };
+  };
+
+  getShowStories = async (page: number, perPage: number) => {
+    const where: Prisma.ItemWhereInput = {
+      AND: [
+        {
+          type: "story",
+        },
+        {
+          title: {
+            startsWith: "Show HN:",
+          },
         },
       ],
     };
